@@ -1,5 +1,5 @@
 <?php
-include 'koneksi.php';
+include '../config/koneksi.php';
 
 // Ambil data barang untuk autocomplete
 $query_barang = oci_parse($conn, "SELECT KODE_BARANG, NAMA_BARANG, HARGA FROM TBL_BARANG");

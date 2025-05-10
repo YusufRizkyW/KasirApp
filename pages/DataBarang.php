@@ -1,4 +1,4 @@
-<?php include 'koneksi.php'; ?>
+<?php include '../config/koneksi.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,8 +12,20 @@
   </style>
   <script>
     function toggleModal() {
-      document.getElementById("modal").classList.toggle("hidden");
-    }
+      const modal = document.getElementById("modal");
+      modal.classList.toggle("hidden");
+      if (!modal.classList.contains("hidden")) {
+        document.getElementById("kode").focus();
+      }
+    };
+        
+    // Hilangkan pesan sukses setelah 5 detik
+    setTimeout(function() {
+      var alertMsg = document.getElementById('alert-msg');
+      if (alertMsg) {
+        alertMsg.style.display = 'none';
+      }
+    }, 5000);
   </script>
 </head>
 <body class="bg-gray-50">
@@ -39,9 +51,13 @@
       <!-- Pesan sukses -->
       <?php if (isset($_GET['status'])): ?>
         <?php if ($_GET['status'] === 'deleted'): ?>
-          <div class="bg-green-100 text-green-800 p-3 mb-4 rounded">Barang berhasil dihapus!</div>
-        <?php elseif ($_GET['status'] === 'error'): ?>
-          <div class="bg-red-100 text-red-800 p-3 mb-4 rounded">Gagal menghapus barang.</div>
+          <div id="alert-msg" class="bg-green-100 text-green-800 p-3 mb-4 rounded">Barang berhasil dihapus!</div>
+        <?php elseif ($_GET['status'] === 'errordeleting'): ?>
+          <div id="alert-msg" class="bg-red-100 text-red-800 p-3 mb-4 rounded">Gagal menghapus barang.</div>
+        <?php elseif ($_GET['status'] === 'added'): ?>
+          <div id="alert-msg" class="bg-green-100 text-green-800 p-3 mb-4 rounded">Barang berhasil ditambahkan!</div>
+        <?php elseif ($_GET['status'] === 'erroradding'): ?>
+          <div id="alert-msg" class="bg-red-100 text-red-800 p-3 mb-4 rounded">Gagal menambahkan barang!</div>
         <?php endif; ?>
       <?php endif; ?>
 
@@ -72,8 +88,8 @@
                 echo "<td class='py-3 px-4'>{$row['STOK']}</td>";
                 echo "<td class='py-3 px-4'>Rp " . number_format($row['HARGA']) . "</td>";
                 echo "<td class='py-3 px-4 text-center'>
-                      <a href='edit_barang.php?kode={$row['KODE_BARANG']}' class='text-blue-500 hover:underline mr-2'>Edit</a>
-                      <form action='hapus_barang.php' method='POST' onsubmit='return confirm(\"Yakin ingin menghapus barang ini?\")' style='display:inline;'>
+                      <a href='../process/edit_barang.php?kode={$row['KODE_BARANG']}' class='text-blue-500 hover:underline mr-2'>Edit</a>
+                      <form action='../process/hapus_barang.php' method='POST' onsubmit='return confirm(\"Yakin ingin menghapus barang ini?\")' style='display:inline;'>
                         <input type='hidden' name='kode_barang' value='{$row['KODE_BARANG']}'>
                         <button type='submit' class='text-red-500 hover:underline'>Hapus</button>
                       </form>
@@ -88,10 +104,10 @@
       </div>
 
       <!-- Modal Tambah Barang -->
-      <div id="modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+      <div id="modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden transition-opacity duration-300">
         <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
           <h2 class="text-xl font-semibold mb-4">Tambah Barang</h2>
-          <form action="proses_tambah_barang.php" method="POST">
+          <form action="../process/proses_tambah_barang.php" method="POST">
             <div class="mb-4">
               <label for="kode" class="block font-medium">Kode Barang</label>
               <input type="text" name="kode_barang" id="kode" required class="w-full border px-3 py-2 rounded" />
@@ -106,11 +122,11 @@
             </div>
             <div class="mb-4">
               <label for="stok" class="block font-medium">Stok</label>
-              <input type="number" name="stok" id="stok" required class="w-full border px-3 py-2 rounded" />
+              <input type="number" name="stok" id="stok" min="0" required class="w-full border px-3 py-2 rounded" />
             </div>
             <div class="mb-4">
               <label for="harga" class="block font-medium">Harga</label>
-              <input type="number" name="harga" id="harga" required class="w-full border px-3 py-2 rounded" />
+              <input type="number" name="harga" id="harga" min="0" required class="w-full border px-3 py-2 rounded" />
             </div>
             <div class="flex justify-end">
               <button type="button" onclick="toggleModal()" class="px-4 py-2 mr-2 border rounded text-gray-700">Batal</button>

@@ -1,5 +1,5 @@
 <?php
-include 'koneksi.php';
+include '../config/koneksi.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kode_barang'])) {
     $kode_barang = $_POST['kode_barang'];
@@ -9,13 +9,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kode_barang'])) {
     $success = oci_execute($delete);
 
     if ($success) {
-        header("Location: DataBarang.php?status=deleted");
+        header("Location: ../pages/DataBarang.php?status=deleted");
     } else {
-        header("Location: DataBarang.php?status=error");
+        header("Location: ../pages/DataBarang.php?status=errordeleting");
     }
     exit();
 } else {
-    header("Location: DataBarang.php");
+    header("Location: ../pages/DataBarang.php");
     exit();
 }
 ?>

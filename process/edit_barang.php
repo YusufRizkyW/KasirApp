@@ -1,5 +1,5 @@
 <?php
-include 'koneksi.php';
+include '../config/koneksi.php';
 
 $kode = $_GET['kode'];
 $query = "SELECT * FROM TBL_BARANG WHERE KODE_BARANG = :kode";
@@ -19,7 +19,7 @@ $data = oci_fetch_assoc($statement);
 <body class="bg-gray-100 p-10">
   <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow">
     <h2 class="text-2xl font-semibold mb-4">Edit Barang</h2>
-    <form action="proses_edit_barang.php" method="POST">
+    <form action="../process/proses_edit_barang.php" method="POST">
       <input type="hidden" name="kode" value="<?= $data['KODE_BARANG'] ?>">
       <div class="mb-4">
         <label>Nama Barang</label>
@@ -38,7 +38,7 @@ $data = oci_fetch_assoc($statement);
         <input type="number" name="harga" value="<?= $data['HARGA'] ?>" required class="w-full border px-3 py-2 rounded">
       </div>
       <div class="flex justify-end">
-        <a href="DataBarang.php" class="px-4 py-2 border mr-2">Batal</a>
+        <a href="../pages/DataBarang.php" class="px-4 py-2 border mr-2">Batal</a>
         <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Update</button>
       </div>
     </form>

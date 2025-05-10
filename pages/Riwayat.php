@@ -1,5 +1,5 @@
 <?php
-include 'koneksi.php';
+include '../config/koneksi.php';
 
 // Ambil riwayat transaksi
 $query_transaksi = oci_parse($conn, "SELECT ID_TRANSAKSI, TANGGAL, TOTAL, KASIR FROM TBL_TRANSAKSI ORDER BY TANGGAL DESC");
@@ -30,7 +30,7 @@ while ($transaksi = oci_fetch_assoc($query_transaksi)) {
 }
 
 oci_free_statement($query_transaksi);
-oci_free_statement($query_detail);
+// oci_free_statement($query_detail);
 oci_close($conn);
 ?>
 

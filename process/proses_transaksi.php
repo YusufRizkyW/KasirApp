@@ -1,5 +1,5 @@
 <?php
-include 'koneksi.php';
+include '../config/koneksi.php';
 
 // Membaca input JSON
 $data = json_decode(file_get_contents("php://input"), true);

@@ -1,5 +1,5 @@
 <?php
-include 'koneksi.php';
+include '../config/koneksi.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $kode = $_POST['kode_barang'];
@@ -22,15 +22,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($result) {
         oci_commit($conn);
-        header("Location: DataBarang.php?status=success"); // ✅ Redirect kembali ke halaman utama
-        exit;
+        header("Location: ../pages/DataBarang.php?status=added");
     } else {
         $e = oci_error($stmt);
-        echo "Gagal menambahkan barang: " . $e['message'];
+        header("Location: ../pages/DataBarang.php?status=erroradding");
     }
 
     oci_free_statement($stmt);
     oci_close($conn);
+    exit();
+
+
 } else {
     echo "Akses tidak sah!";
 }

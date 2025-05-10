@@ -1,5 +1,5 @@
 <?php
-include 'koneksi.php';
+include '../config/koneksi.php';
 
 $kode = $_POST['kode'];
 $nama = $_POST['nama'];
@@ -18,7 +18,7 @@ oci_bind_by_name($statement, ':harga', $harga);
 oci_bind_by_name($statement, ':kode', $kode);
 
 if (oci_execute($statement)) {
-  header("Location: DataBarang.php?status=edited");
+  header("Location: ../pages/DataBarang.php?status=edited");
 } else {
   echo "Gagal update data!";
 }

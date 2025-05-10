@@ -1,5 +1,5 @@
 <?php
-include 'koneksi.php';
+include '../config/koneksi.php';
 
 $kode = isset($_GET['kode']) ? $_GET['kode'] : '';
 
