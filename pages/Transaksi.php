@@ -1,9 +1,10 @@
 <?php
+session_start();
 include '../config/koneksi.php';
 
 // Ambil data barang dari database
 $barang = [];
-$stmt = oci_parse($conn, "SELECT KODE_BARANG, NAMA_BARANG, HARGA, SATUAN FROM TBL_BARANG");
+$stmt = oci_parse($conn, "SELECT KODE_BARANG, NAMA_BARANG, HARGA, SATUAN, STOK FROM TBL_BARANG");
 oci_execute($stmt);
 while ($row = oci_fetch_assoc($stmt)) {
     $barang[] = $row;
@@ -30,7 +31,7 @@ oci_free_statement($stmt);
         <nav class="space-y-4">
             <a href="KasirDashboard.php" class="block text-gray-700 hover:text-purple-600 font-medium">🏠 Dashboard</a>
             <a href="DataBarang.php" class="block text-gray-700 hover:text-purple-600 font-medium">📦 Data Barang</a>
-            <a href="Transaksi.php" class="block text-gray-700 hover:text-purple-600 font-medium">🛒 Transaksi</a>
+            <a href="Transaksi.php" class="block text-purple-600 font-bold">🛒 Transaksi</a>
             <a href="riwayat.php" class="block text-gray-700 hover:text-purple-600 font-medium">📄 Riwayat</a>
         </nav>
     </aside>
@@ -39,7 +40,7 @@ oci_free_statement($stmt);
     <main class="flex-1 p-6">
         <h1 class="text-3xl font-bold mb-6">Transaksi Barang</h1>
 
-        <form method="POST" action="Transaksi.php" onsubmit="return handleSubmit()">
+        <form method="POST" action="../process/proses_transaksi.php" onsubmit="return handleSubmit()">
             <div class="grid grid-cols-2 gap-6">
                 <div>
                     <label class="block mb-1 font-semibold">Kode Barang:</label>
@@ -96,54 +97,6 @@ oci_free_statement($stmt);
                 <button type="submit" name="submit_transaksi" class="bg-green-600 text-white px-6 py-3 rounded-md">Simpan Transaksi</button>
             </div>
         </form>
-
-        <?php
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_transaksi'])) {
-            $keranjang = json_decode($_POST['keranjang'], true);
-            $kasir = 'Admin';
-
-            if (empty($keranjang)) {
-                echo "<script>alert('Keranjang kosong!');</script>";
-            } else {
-                $stmt_id = oci_parse($conn, "SELECT TO_CHAR(SEQ_TRANS.NEXTVAL) AS ID FROM DUAL");
-                oci_execute($stmt_id);
-                $row_id = oci_fetch_assoc($stmt_id);
-                $id_transaksi = $row_id['ID'];
-
-                $total = array_sum(array_column($keranjang, 'subtotal'));
-
-                $insert_transaksi = oci_parse($conn, "INSERT INTO TBL_TRANSAKSI (ID_TRANSAKSI, TANGGAL, TOTAL, KASIR)
-                                                      VALUES (:id_transaksi, SYSDATE, :total, :kasir)");
-                oci_bind_by_name($insert_transaksi, ':id_transaksi', $id_transaksi);
-                oci_bind_by_name($insert_transaksi, ':total', $total);
-                oci_bind_by_name($insert_transaksi, ':kasir', $kasir);
-                oci_execute($insert_transaksi);
-
-                foreach ($keranjang as $item) {
-                    $insert_detail = oci_parse($conn, "INSERT INTO TBL_DETAIL_TRANSAKSI 
-                        (ID_TRANSAKSI, KODE_BARANG, JUMLAH, SUBTOTAL)
-                        VALUES (:id_transaksi, :kode_barang, :jumlah, :subtotal)");
-                    oci_bind_by_name($insert_detail, ':id_transaksi', $id_transaksi);
-                    oci_bind_by_name($insert_detail, ':kode_barang', $item['kode_barang']);
-                    oci_bind_by_name($insert_detail, ':jumlah', $item['jumlah']);
-                    oci_bind_by_name($insert_detail, ':subtotal', $item['subtotal']);
-                    oci_execute($insert_detail);
-                    oci_free_statement($insert_detail);
-                }
-
-                oci_commit($conn);
-
-                echo "<script>
-                    alert('Transaksi berhasil!');
-                    localStorage.removeItem('keranjang');
-                    window.location.href='Transaksi.php';
-                </script>";
-            }
-
-            oci_free_statement($insert_transaksi);
-            oci_free_statement($stmt_id);
-        }
-        ?>
     </main>
 </div>
 
@@ -184,9 +137,21 @@ oci_free_statement($stmt);
 
         const barangData = barang.find(b => b.KODE_BARANG === kode);
         const satuan = barangData ? barangData.SATUAN : '';
+        const stok = barangData ? parseInt(barangData.STOK) : 0;
+        const sudahDiKeranjang = keranjang.find(item => item.kode_barang === kode);
+        const totalJumlah = sudahDiKeranjang ? sudahDiKeranjang.jumlah + jumlah : jumlah;
+        if (stok > 0 && totalJumlah > stok) {
+            alert('Stok tidak mencukupi!');
+            return;
+        }
 
         const subtotal = harga * jumlah;
-        keranjang.push({ kode_barang: kode, nama_barang: nama, harga: harga, jumlah: jumlah, subtotal: subtotal, satuan: satuan });
+        if (sudahDiKeranjang) {
+            sudahDiKeranjang.jumlah += jumlah;
+            sudahDiKeranjang.subtotal += subtotal;
+        } else {
+            keranjang.push({ kode_barang: kode, nama_barang: nama, harga: harga, jumlah: jumlah, subtotal: subtotal, satuan: satuan });
+        }
         renderKeranjang();
 
         $('#kode_barang, #nama_barang, #harga, #jumlah').val('');
@@ -207,7 +172,7 @@ oci_free_statement($stmt);
                     <td class="border px-2 py-1">${item.jumlah} ${item.satuan}</td>
                     <td class="border px-2 py-1">Rp ${item.subtotal}</td>
                     <td class="border px-2 py-1">
-                        <button onclick="hapusBarang(${index})" class="bg-red-500 text-white px-2 py-1 rounded">Hapus</button>
+                        <button type="button" onclick="hapusBarang(${index})" class="bg-red-500 text-white px-2 py-1 rounded">Hapus</button>
                     </td>
                 </tr>
             `);
@@ -243,6 +208,8 @@ oci_free_statement($stmt);
             return false;
         }
         document.getElementById('keranjang_input').value = JSON.stringify(keranjang);
+        // Bersihkan keranjang di localStorage setelah submit
+        localStorage.removeItem('keranjang');
         return true;
     }
 

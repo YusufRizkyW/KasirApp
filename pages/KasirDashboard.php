@@ -15,8 +15,7 @@ $totalTransaksi = $rowTransaksi['TOTAL'];
 
 // Total Pendapatan
 $queryPendapatan = oci_parse($conn, "
-  SELECT SUM(COALESCE(dt.jumlah * dt.SUBTOTAL, 0)) AS TOTAL_PENDAPATAN
-  FROM TBL_DETAIL_TRANSAKSI dt
+  SELECT SUM(dt.SUBTOTAL) AS TOTAL_PENDAPATAN FROM TBL_DETAIL_TRANSAKSI dt
 ");
 oci_execute($queryPendapatan);
 $rowPendapatan = oci_fetch_assoc($queryPendapatan);

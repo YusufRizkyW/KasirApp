@@ -1,40 +1,68 @@
 <?php
+session_start();
 include '../config/koneksi.php';
 
-// Membaca input JSON
-$data = json_decode(file_get_contents("php://input"), true);
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_transaksi'])) {
+    $keranjang = json_decode($_POST['keranjang'], true);
+    $kasir = isset($_SESSION['username']) ? $_SESSION['username'] : 'Admin';
 
-// Mengecek apakah data valid
-if (!$data) {
-    echo "Data tidak valid!";
-    exit;
-}
-
-// Looping untuk setiap item transaksi
-foreach ($data as $item) {
-    // Query untuk memasukkan data transaksi
-    $sql = "INSERT INTO TBL_TRANSAKSI (ID_TRANSAKSI, TANGGAL, TOTAL, KASIR) 
-            VALUES (SEQ_TRANSAKSI.NEXTVAL, :kode, :jumlah, :subtotal)";
-    
-    // Menyiapkan statement
-    $stmt = oci_parse($koneksi, $sql);
-    
-    // Menghitung subtotal (harga * jumlah)
-    $subtotal = $item['harga'] * $item['jumlah'];
-    
-    // Mengikat parameter ke statement
-    oci_bind_by_name($stmt, ":kode", $item['kode']);
-    oci_bind_by_name($stmt, ":jumlah", $item['jumlah']);
-    oci_bind_by_name($stmt, ":subtotal", $subtotal);
-    
-    // Eksekusi statement
-    if (oci_execute($stmt)) {
-        echo "Transaksi berhasil disimpan untuk kode: " . $item['kode'] . "<br>";
-    } else {
-        $error = oci_error($stmt);
-        echo "Gagal menyimpan transaksi untuk kode " . $item['kode'] . ": " . $error['message'] . "<br>";
+    if (empty($keranjang)) {
+        echo "<script>alert('Keranjang kosong!'); window.location.href='../pages/Transaksi.php';</script>";
+        exit;
     }
-}
 
-echo "Semua transaksi telah diproses.";
+    // Ambil ID transaksi dari sequence
+    $stmt_id = oci_parse($conn, "SELECT TO_CHAR(SEQ_TRANSAKSI.NEXTVAL) AS ID FROM DUAL");
+    oci_execute($stmt_id);
+    $row_id = oci_fetch_assoc($stmt_id);
+    $id_transaksi = $row_id['ID'];
+    oci_free_statement($stmt_id);
+
+    $total = array_sum(array_column($keranjang, 'subtotal'));
+
+    // Insert ke tabel transaksi
+    $insert_transaksi = oci_parse($conn, "INSERT INTO TBL_TRANSAKSI (ID_TRANSAKSI, TANGGAL, TOTAL, KASIR)
+                                          VALUES (:id_transaksi, SYSDATE, :total, :kasir)");
+    oci_bind_by_name($insert_transaksi, ':id_transaksi', $id_transaksi);
+    oci_bind_by_name($insert_transaksi, ':total', $total);
+    oci_bind_by_name($insert_transaksi, ':kasir', $kasir);
+    oci_execute($insert_transaksi);
+    oci_free_statement($insert_transaksi);
+
+    // Insert detail transaksi dan update stok
+    foreach ($keranjang as $item) {
+        // Ambil ID_DETAIL dari sequence
+        $stmt_detail_id = oci_parse($conn, "SELECT TO_CHAR(SEQ_DETAIL.NEXTVAL) AS ID_DETAIL FROM DUAL");
+        oci_execute($stmt_detail_id);
+        $row_detail_id = oci_fetch_assoc($stmt_detail_id);
+        $id_detail = $row_detail_id['ID_DETAIL'];
+        oci_free_statement($stmt_detail_id);
+
+        // Insert detail transaksi
+        $insert_detail = oci_parse($conn, "INSERT INTO TBL_DETAIL_TRANSAKSI 
+            (ID_DETAIL, ID_TRANSAKSI, KODE_BARANG, JUMLAH, SUBTOTAL)
+            VALUES (:id_detail, :id_transaksi, :kode_barang, :jumlah, :subtotal)");
+        oci_bind_by_name($insert_detail, ':id_detail', $id_detail);
+        oci_bind_by_name($insert_detail, ':id_transaksi', $id_transaksi);
+        oci_bind_by_name($insert_detail, ':kode_barang', $item['kode_barang']);
+        oci_bind_by_name($insert_detail, ':jumlah', $item['jumlah']);
+        oci_bind_by_name($insert_detail, ':subtotal', $item['subtotal']);
+        oci_execute($insert_detail);
+        oci_free_statement($insert_detail);
+
+        // Update stok barang
+        $update_stok = oci_parse($conn, "UPDATE TBL_BARANG SET STOK = STOK - :jumlah WHERE KODE_BARANG = :kode_barang");
+        oci_bind_by_name($update_stok, ':jumlah', $item['jumlah']);
+        oci_bind_by_name($update_stok, ':kode_barang', $item['kode_barang']);
+        oci_execute($update_stok);
+        oci_free_statement($update_stok);
+    }
+
+    oci_commit($conn);
+
+    echo "<script>
+        alert('Transaksi berhasil!');
+        window.location.href='../pages/Transaksi.php';
+    </script>";
+}
 ?>
