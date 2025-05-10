@@ -2,7 +2,7 @@
 include '../config/koneksi.php';
 
 // Ambil data barang untuk autocomplete
-$query_barang = oci_parse($conn, "SELECT KODE_BARANG, NAMA_BARANG, HARGA FROM TBL_BARANG");
+$query_barang = oci_parse($conn, "SELECT KODE_BARANG, NAMA_BARANG, HARGA, SATUAN FROM TBL_BARANG");
 oci_execute($query_barang);
 
 $barang = [];
@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_transaksi'])) 
             echo "<script>alert('Keranjang kosong!');</script>";
         } else {
             // Lanjutkan dengan proses transaksi
-            $conn = oci_connect('C##KASIR', 'kasir123', 'localhost:1521/orcl');
+            include '../config/koneksi.php';
             $stmt_id = oci_parse($conn, "SELECT TO_CHAR(SEQ_TRANS.NEXTVAL) AS ID FROM DUAL");
             oci_execute($stmt_id);
             $row_id = oci_fetch_assoc($stmt_id);
@@ -50,12 +50,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_transaksi'])) 
                 oci_bind_by_name($insert_detail, ':subtotal', $item['subtotal']);
                 oci_execute($insert_detail);
                 oci_free_statement($insert_detail);
+
+                // Update stok barang
+                $update_stok = oci_parse($conn, "UPDATE TBL_BARANG SET STOK = STOK - :jumlah WHERE KODE_BARANG = :kode_barang");
+                oci_bind_by_name($update_stok, ':jumlah', $item['jumlah']);
+                oci_bind_by_name($update_stok, ':kode_barang', $item['kode_barang']);
+                oci_execute($update_stok);
+                oci_free_statement($update_stok);
             }
 
             // Commit transaksi
             oci_parse($conn, "COMMIT");
 
-            echo "<script>alert('Transaksi berhasil!'); window.location.href='Transaksi.php';</script>";
+            echo "<script>
+                    alert('Transaksi berhasil!'); 
+                    localStorage.removeItem('keranjang');
+                    window.location.href='Transaksi.php';
+                </script>";
         }
 
         oci_free_statement($insert_transaksi);
@@ -198,7 +209,8 @@ oci_close($conn);
                 }
 
                 // Commit transaksi
-                oci_parse($conn, "COMMIT");
+                // oci_parse($conn, "COMMIT");
+                oci_commit($conn);
 
                 echo "<script>alert('Transaksi berhasil!'); window.location.href='Transaksi.php';</script>";
             }
@@ -245,8 +257,12 @@ oci_close($conn);
             return;
         }
 
+        // Ambil satuan dari array barang
+        const barangData = barang.find(b => b.KODE_BARANG === kode);
+        const satuan = barangData ? barangData.SATUAN : '';
+
         const subtotal = harga * jumlah;
-        keranjang.push({ kode_barang: kode, nama_barang: nama, harga: harga, jumlah: jumlah, subtotal: subtotal });
+        keranjang.push({ kode_barang: kode, nama_barang: nama, harga: harga, jumlah: jumlah, subtotal: subtotal, satuan: satuan });
         renderKeranjang();
 
         $('#kode_barang, #nama_barang, #harga, #jumlah').val('');
@@ -264,7 +280,7 @@ oci_close($conn);
                     <td class="border px-2 py-1">${item.kode_barang}</td>
                     <td class="border px-2 py-1">${item.nama_barang}</td>
                     <td class="border px-2 py-1">Rp ${item.harga}</td>
-                    <td class="border px-2 py-1">${item.jumlah}</td>
+                    <td class="border px-2 py-1">${item.jumlah} ${item.satuan}</td>
                     <td class="border px-2 py-1">Rp ${item.subtotal}</td>
                     <td class="border px-2 py-1">
                         <button onclick="hapusBarang(${index})" class="bg-red-500 text-white px-2 py-1 rounded">Hapus</button>
