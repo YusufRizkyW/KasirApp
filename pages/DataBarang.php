@@ -70,6 +70,7 @@
               <th class="py-3 px-4">Nama Barang</th>
               <th class="py-3 px-4">Kategori</th>
               <th class="py-3 px-4">Stok</th>
+              <th class="py-3 px-4">Satuan</th>
               <th class="py-3 px-4">Harga</th>
               <th class="py-3 px-4 text-center">Aksi</th>
             </tr>
@@ -86,6 +87,7 @@
                 echo "<td class='py-3 px-4'>{$row['NAMA_BARANG']}</td>";
                 echo "<td class='py-3 px-4'>{$row['KATEGORI']}</td>";
                 echo "<td class='py-3 px-4'>{$row['STOK']}</td>";
+                echo "<td class='py-3 px-4'>{$row['SATUAN']}</td>";
                 echo "<td class='py-3 px-4'>Rp " . number_format($row['HARGA']) . "</td>";
                 echo "<td class='py-3 px-4 text-center'>
                       <a href='../process/edit_barang.php?kode={$row['KODE_BARANG']}' class='text-blue-500 hover:underline mr-2'>Edit</a>
@@ -112,22 +114,44 @@
               <label for="kode" class="block font-medium">Kode Barang</label>
               <input type="text" name="kode_barang" id="kode" required class="w-full border px-3 py-2 rounded" />
             </div>
+
             <div class="mb-4">
               <label for="nama" class="block font-medium">Nama Barang</label>
               <input type="text" name="nama_barang" id="nama" required class="w-full border px-3 py-2 rounded" />
             </div>
+
             <div class="mb-4">
               <label for="kategori" class="block font-medium">Kategori</label>
-              <input type="text" name="kategori" id="kategori" required class="w-full border px-3 py-2 rounded" />
+                <select name="kategori" id="kategori" required class="w-full border px-3 py-2 rounded">
+                  <option value="">-- Pilih Kategori --</option>
+                  <option value="Bahan Makanan">Bahan Makanan</option>
+                  <option value="Makanan">Makanan</option>
+                  <option value="Minuman">Minuman</option>
+                </select>
             </div>
+
             <div class="mb-4">
               <label for="stok" class="block font-medium">Stok</label>
               <input type="number" name="stok" id="stok" min="0" required class="w-full border px-3 py-2 rounded" />
             </div>
+
+            <div class="mb-4">
+              <label for="satuan" class="block font-medium">Satuan</label>
+              <select name="satuan" id="satuan" required class="w-full border px-3 py-2 rounded">
+                <option value="">-- Pilih Satuan --</option>
+                <option value="pcs">pcs</option>
+                <option value="kg">kg</option>
+                <option value="liter">liter</option>
+                <option value="pak">pak</option>
+                <option value="dus">dus</option>
+              </select>
+            </div>
+
             <div class="mb-4">
               <label for="harga" class="block font-medium">Harga</label>
               <input type="number" name="harga" id="harga" min="0" required class="w-full border px-3 py-2 rounded" />
             </div>
+
             <div class="flex justify-end">
               <button type="button" onclick="toggleModal()" class="px-4 py-2 mr-2 border rounded text-gray-700">Batal</button>
               <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">Simpan</button>

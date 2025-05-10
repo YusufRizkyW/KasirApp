@@ -25,18 +25,39 @@ $data = oci_fetch_assoc($statement);
         <label>Nama Barang</label>
         <input type="text" name="nama" value="<?= $data['NAMA_BARANG'] ?>" required class="w-full border px-3 py-2 rounded">
       </div>
+
       <div class="mb-4">
-        <label>Kategori</label>
-        <input type="text" name="kategori" value="<?= $data['KATEGORI'] ?>" required class="w-full border px-3 py-2 rounded">
+        <label for="kategori" class="block font-medium">Kategori</label>
+        <select name="kategori" id="kategori" required class="w-full border px-3 py-2 rounded">
+          <option value="">-- Pilih Kategori --</option>
+          <option value="Bahan Makanan" <?= $data['KATEGORI'] == 'Bahan Makanan' ? 'selected' : '' ?>>Bahan Makanan</option>
+          <option value="Makanan" <?= $data['KATEGORI'] == 'Makanan' ? 'selected' : '' ?>>Makanan</option>
+          <option value="Minuman" <?= $data['KATEGORI'] == 'Minuman' ? 'selected' : '' ?>>Minuman</option>
+        </select>
       </div>
+
       <div class="mb-4">
         <label>Stok</label>
         <input type="number" name="stok" value="<?= $data['STOK'] ?>" required class="w-full border px-3 py-2 rounded">
       </div>
+
+      <div class="mb-4">
+        <label for="satuan" class="block font-medium">Satuan</label>
+        <select name="satuan" id="satuan" required class="w-full border px-3 py-2 rounded">
+          <option value="">-- Pilih Satuan --</option>
+          <option value="pcs" <?= $data['SATUAN'] == 'pcs' ? 'selected' : '' ?>>pcs</option>
+          <option value="kg" <?= $data['SATUAN'] == 'kg' ? 'selected' : '' ?>>kg</option>
+          <option value="liter" <?= $data['SATUAN'] == 'liter' ? 'selected' : '' ?>>liter</option>
+          <option value="pak" <?= $data['SATUAN'] == 'pak' ? 'selected' : '' ?>>pak</option>
+          <option value="dus" <?= $data['SATUAN'] == 'dus' ? 'selected' : '' ?>>dus</option>
+        </select>
+      </div>
+      
       <div class="mb-4">
         <label>Harga</label>
         <input type="number" name="harga" value="<?= $data['HARGA'] ?>" required class="w-full border px-3 py-2 rounded">
       </div>
+
       <div class="flex justify-end">
         <a href="../pages/DataBarang.php" class="px-4 py-2 border mr-2">Batal</a>
         <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Update</button>
