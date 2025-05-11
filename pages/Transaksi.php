@@ -80,12 +80,14 @@ oci_free_statement($stmt);
                             <tr>
                                 <td colspan="4" class="text-right font-semibold">Uang Bayar:</td>
                                 <td colspan="2">
-                                    <input type="number" id="uang_bayar" class="border p-2 w-full" oninput="hitungKembalian()">
+                                    <input type="number" id="uang_bayar" name="uang_bayar" class="border p-2 w-full" oninput="hitungKembalian()">
                                 </td>
                             </tr>
                             <tr class="bg-gray-100">
                                 <td colspan="4" class="text-right font-semibold">Kembalian:</td>
-                                <td id="kembalian_display" class="text-right font-semibold" colspan="2">Rp 0</td>
+                                <td colspan="2">
+                                    <input type="number" id="kembalian" name="kembalian" class="border p-2 w-full" readonly>
+                                </td>
                             </tr>
                         </tfoot>
                     </table>
@@ -93,6 +95,7 @@ oci_free_statement($stmt);
             </div>
 
             <input type="hidden" name="keranjang" id="keranjang_input">
+            <input type="hidden" name="total_bayar" id="total_bayar">
 
             <div class="flex justify-end mt-6">
                 <button type="submit" name="submit_transaksi" class="bg-green-600 text-white px-6 py-3 rounded-md">Simpan Transaksi</button>
@@ -137,10 +140,16 @@ oci_free_statement($stmt);
         }
 
         const barangData = barang.find(b => b.KODE_BARANG === kode);
+        if (!barangData) {
+            alert('Barang tidak ditemukan!');
+            return;
+        }
+
         const satuan = barangData ? barangData.SATUAN : '';
         const stok = barangData ? parseInt(barangData.STOK) : 0;
         const sudahDiKeranjang = keranjang.find(item => item.kode_barang === kode);
         const totalJumlah = sudahDiKeranjang ? sudahDiKeranjang.jumlah + jumlah : jumlah;
+
         if (stok > 0 && totalJumlah > stok) {
             alert('Stok tidak mencukupi!');
             return;
@@ -172,19 +181,18 @@ oci_free_statement($stmt);
                     <td class="border px-2 py-1">Rp ${item.harga}</td>
                     <td class="border px-2 py-1">${item.jumlah} ${item.satuan}</td>
                     <td class="border px-2 py-1">Rp ${item.subtotal}</td>
-                    <td class="border px-2 py-1">
-                        <button type="button" onclick="hapusBarang(${index})" class="bg-red-500 text-white px-2 py-1 rounded">Hapus</button>
-                    </td>
+                    <td class="border px-2 py-1"><button type="button" onclick="hapusItem(${index})" class="text-red-500">Hapus</button></td>
                 </tr>
             `);
         });
 
-        $('#total_display').text('Rp ' + total);
-        $('#keranjang_input').val(JSON.stringify(keranjang));
+        $('#total_display').text(`Rp ${total}`);
+        $('#uang_bayar').val('');
+        $('#kembalian').val('');
         localStorage.setItem('keranjang', JSON.stringify(keranjang));
     }
 
-    function hapusBarang(index) {
+    function hapusItem(index) {
         keranjang.splice(index, 1);
         renderKeranjang();
     }
@@ -193,24 +201,36 @@ oci_free_statement($stmt);
         const total = keranjang.reduce((sum, item) => sum + item.subtotal, 0);
         const uangBayar = parseInt($('#uang_bayar').val());
         if (!isNaN(uangBayar)) {
-            $('#kembalian_display').text('Rp ' + (uangBayar - total));
+            const kembalian = uangBayar - total;
+            $('#kembalian').val(kembalian >= 0 ? kembalian : 0);
         }
     }
 
     function handleSubmit() {
-        const uangBayar = parseInt($('#uang_bayar').val());
         const total = keranjang.reduce((sum, item) => sum + item.subtotal, 0);
+        const uangBayar = parseInt($('#uang_bayar').val());
+
         if (keranjang.length === 0) {
             alert('Keranjang masih kosong!');
             return false;
         }
+
         if (isNaN(uangBayar) || uangBayar < total) {
-            alert('Uang bayar tidak mencukupi!');
+            alert('Uang bayar tidak cukup!');
             return false;
         }
-        document.getElementById('keranjang_input').value = JSON.stringify(keranjang);
-        // Bersihkan keranjang di localStorage setelah submit
+
+        // Menghitung kembalian dan menampilkan pada input kembalian
+        const kembalian = uangBayar - total;
+        $('#kembalian').val(kembalian >= 0 ? kembalian : 0);
+
+        // Menyimpan uang bayar dan kembalian ke dalam hidden input untuk dikirim ke server
+        $('#total_bayar').val(uangBayar); // Uang bayar yang dimasukkan
+        $('#keranjang_input').val(JSON.stringify(keranjang)); // Kirim keranjang dalam format JSON
+
+        // Menghapus data keranjang dari localStorage setelah transaksi disimpan
         localStorage.removeItem('keranjang');
+
         return true;
     }
 

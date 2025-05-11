@@ -18,15 +18,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_transaksi'])) 
     $id_transaksi = $row_id['ID'];
     oci_free_statement($stmt_id);
 
+    // Hitung total dari keranjang
     $total = array_sum(array_column($keranjang, 'subtotal'));
 
+    // Pastikan total_bayar ada, jika tidak menggunakan total
+    $total_bayar = isset($_POST['total_bayar']) ? (float)$_POST['total_bayar'] : $total;
+
+    // Debugging: Periksa nilai total dan total_bayar
+    echo "Total Keranjang: " . $total . "<br>";
+    echo "Total Bayar: " . $total_bayar . "<br>";
+
+    // Hitung kembalian
+    $kembalian = $total_bayar - $total;
+
+    $kembalian = $_POST['kembalian']; // Ambil nilai kembalian
+    
+    // Debugging: Periksa nilai kembalian
+    echo "Kembalian: " . $kembalian . "<br>";
+
     // Insert ke tabel transaksi
-    $insert_transaksi = oci_parse($conn, "INSERT INTO TBL_TRANSAKSI (ID_TRANSAKSI, TANGGAL, TOTAL, KASIR)
-                                          VALUES (:id_transaksi, SYSDATE, :total, :kasir)");
-    oci_bind_by_name($insert_transaksi, ':id_transaksi', $id_transaksi);
-    oci_bind_by_name($insert_transaksi, ':total', $total);
-    oci_bind_by_name($insert_transaksi, ':kasir', $kasir);
-    oci_execute($insert_transaksi);
+    $insert_transaksi = oci_parse($conn, "INSERT INTO TBL_TRANSAKSI 
+        (ID_TRANSAKSI, TANGGAL, TOTAL, TOTAL_BAYAR, KASIR, KEMBALIAN)
+        VALUES (:id_transaksi, SYSDATE, :total, :total_bayar, :kasir, :kembalian)");
+            oci_bind_by_name($insert_transaksi, ':id_transaksi', $id_transaksi);
+            oci_bind_by_name($insert_transaksi, ':total', $total);
+            oci_bind_by_name($insert_transaksi, ':total_bayar', $total_bayar);
+            oci_bind_by_name($insert_transaksi, ':kasir', $kasir);
+            oci_bind_by_name($insert_transaksi, ':kembalian', $kembalian);  // Menyimpan kembalian
+            if (!oci_execute($insert_transaksi)) {
+                echo "<script>alert('Gagal menyimpan transaksi!'); window.location.href='../pages/Transaksi.php';</script>";
+                exit;
+            }
     oci_free_statement($insert_transaksi);
 
     // Insert detail transaksi dan update stok

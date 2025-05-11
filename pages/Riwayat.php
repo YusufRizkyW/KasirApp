@@ -2,7 +2,7 @@
 include '../config/koneksi.php';
 
 // Ambil riwayat transaksi
-$query_transaksi = oci_parse($conn, "SELECT ID_TRANSAKSI, TANGGAL, TOTAL, KASIR FROM TBL_TRANSAKSI ORDER BY TANGGAL DESC");
+$query_transaksi = oci_parse($conn, "SELECT ID_TRANSAKSI, TANGGAL, TOTAL, TOTAL_BAYAR, KASIR FROM TBL_TRANSAKSI ORDER BY TANGGAL DESC");
 oci_execute($query_transaksi);
 
 // Ambil detail transaksi per transaksi
@@ -33,6 +33,11 @@ while ($transaksi = oci_fetch_assoc($query_transaksi)) {
 
 oci_free_statement($query_transaksi);
 oci_close($conn);
+
+// Fungsi format rupiah
+function format_rupiah($angka) {
+    return 'Rp ' . number_format($angka, 0, ',', '.');
+}
 ?>
 
 <!DOCTYPE html>
@@ -61,14 +66,15 @@ oci_close($conn);
         <h1 class="text-3xl font-bold mb-6">Riwayat Transaksi</h1>
 
         <!-- Tabel Riwayat Transaksi -->
-        <table class="w-full border-collapse">
+        <table class="w-full border-collapse bg-white rounded-lg shadow-lg">
             <thead>
                 <tr class="bg-gray-200 text-sm text-left">
                     <th class="border px-4 py-2">ID Transaksi</th>
                     <th class="border px-4 py-2">Tanggal</th>
-                    <th class="border px-4 py-2">Total</th>
                     <th class="border px-4 py-2">Kasir</th>
-                    <th class="border px-4 py-2">Detail</th>
+                    <th class="border px-4 py-2">Total</th>
+                    <th class="border px-4 py-2">Kembalian</th>
+                    <th class="border px-4 py-2 text-center">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -76,16 +82,29 @@ oci_close($conn);
                     <tr class="bg-white">
                         <td class="border px-4 py-2"><?= $transaksi['ID_TRANSAKSI'] ?></td>
                         <td class="border px-4 py-2"><?= date("d-m-Y H:i:s", strtotime($transaksi['TANGGAL'])) ?></td>
-                        <td class="border px-4 py-2">Rp <?= number_format($transaksi['TOTAL'], 0, ',', '.') ?></td>
                         <td class="border px-4 py-2"><?= $transaksi['KASIR'] ?></td>
-                        <td class="border px-4 py-2">
+                        
+                        <?php
+                            // Hitung kembalian jika total bayar lebih besar dari total transaksi
+                            $total_bayar = $transaksi['TOTAL_BAYAR'] ?? 0;
+                            $total = $transaksi['TOTAL'] ?? 0;
+                            $kembalian = ($total_bayar >= $total) ? $total_bayar - $total : 0;
+                        ?>
+                        <td class="border px-4 py-2"><?= format_rupiah($total) ?></td>
+                        <td class="border px-4 py-2"><?= format_rupiah($kembalian) ?></td>
+                        <td class="border px-4 py-2 text-center">
                             <button onclick="toggleDetail(<?= $transaksi['ID_TRANSAKSI'] ?>)" class="bg-blue-500 text-white px-4 py-2 rounded">Lihat Detail</button>
+                            <!-- Tombol Hapus -->
+                            <form action="hapus_transaksi.php" method="POST" onsubmit="return confirm('Yakin ingin menghapus transaksi ini?');" class="inline">
+                                <input type="hidden" name="id_transaksi" value="<?= $transaksi['ID_TRANSAKSI'] ?>">
+                                <button type="submit" title="Hapus Transaksi" class="bg-red-500 text-white px-4 py-2 rounded">Hapus</button>
+                            </form>
                         </td>
                     </tr>
 
                     <!-- Detail Transaksi -->
                     <tr id="detail_<?= $transaksi['ID_TRANSAKSI'] ?>" style="display:none;">
-                        <td colspan="5" class="border px-4 py-2 bg-gray-50">
+                        <td colspan="6" class="border px-4 py-2 bg-gray-50">
                             <?php if (count($transaksi['DETAIL']) > 0): ?>
                                 <table class="w-full">
                                     <thead>
@@ -104,7 +123,7 @@ oci_close($conn);
                                                 <td class="border px-4 py-2"><?= $detail['NAMA_BARANG'] ?></td>
                                                 <td class="border px-4 py-2"><?= $detail['JUMLAH'] ?></td>
                                                 <td class="border px-4 py-2"><?= $detail['SATUAN'] ?></td>
-                                                <td class="border px-4 py-2">Rp <?= number_format($detail['SUBTOTAL'], 0, ',', '.') ?></td>
+                                                <td class="border px-4 py-2"><?= format_rupiah($detail['SUBTOTAL']) ?></td>
                                             </tr>
                                         <?php endforeach; ?>
                                     </tbody>
