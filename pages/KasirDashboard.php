@@ -1,6 +1,9 @@
 <?php
 include '../config/koneksi.php';
 
+// Default periode to 'mingguan' if not set in the query string
+$periode = isset($_GET['periode']) ? $_GET['periode'] : 'mingguan';  // Default to 'mingguan'
+
 // Total Barang
 $queryBarang = oci_parse($conn, "SELECT COUNT(*) AS TOTAL FROM TBL_BARANG");
 oci_execute($queryBarang);
@@ -36,28 +39,68 @@ while ($row = oci_fetch_assoc($queryTransaksiTerakhir)) {
     $transaksiTerakhir[] = $row;
 }
 
-// Query untuk mendapatkan penjualan per hari dalam seminggu
-$queryPenjualanMingguan = oci_parse($conn, "
-  SELECT TO_CHAR(t.TANGGAL, 'Day') AS HARI, SUM(dt.SUBTOTAL) AS PENJUALAN
-  FROM TBL_TRANSAKSI t
-  JOIN TBL_DETAIL_TRANSAKSI dt ON t.ID_TRANSAKSI = dt.ID_TRANSAKSI
-  WHERE t.TANGGAL >= SYSDATE - 7
-  GROUP BY TO_CHAR(t.TANGGAL, 'Day')
-  ORDER BY TO_CHAR(t.TANGGAL, 'Day')
-");
-oci_execute($queryPenjualanMingguan);
-$penjualanMingguan = [];
-while ($row = oci_fetch_assoc($queryPenjualanMingguan)) {
-    $hariTrimmed = trim($row['HARI']);
-    $penjualanMingguan[$hariTrimmed] = $row['PENJUALAN'];
+// Inisialisasi array penjualan sesuai dengan periode
+if ($periode == 'mingguan') {
+    $labels = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+    $penjualan = array_fill_keys($labels, 0); // Key: nama hari
+} else if ($periode == 'bulanan') {
+    $labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+    $penjualan = array_fill(0, 12, 0); // Index 0–11 untuk bulan
 }
 
-// Format data penjualan mingguan untuk Chart.js
-$hari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
-$dataPenjualan = [];
-foreach ($hari as $h) {
-    $dataPenjualan[] = isset($penjualanMingguan[$h]) ? $penjualanMingguan[$h] : 0;
+// --- QUERY DAN PENGOLAHAN DATA ---
+
+if ($periode == 'mingguan') {
+    // Ambil penjualan 7 hari terakhir, urut berdasarkan nama hari (Senin - Minggu)
+    $query = oci_parse($conn, "
+        SELECT TO_CHAR(t.TANGGAL, 'DAY', 'NLS_DATE_LANGUAGE=INDONESIAN') AS NAMA_HARI,
+               SUM(dt.SUBTOTAL) AS PENJUALAN
+        FROM TBL_TRANSAKSI t
+        JOIN TBL_DETAIL_TRANSAKSI dt ON t.ID_TRANSAKSI = dt.ID_TRANSAKSI
+        WHERE t.TANGGAL >= TRUNC(SYSDATE) - 6
+        GROUP BY TO_CHAR(t.TANGGAL, 'DAY', 'NLS_DATE_LANGUAGE=INDONESIAN')
+    ");
+    oci_execute($query);
+    while ($row = oci_fetch_assoc($query)) {
+        $namaHari = ucfirst(strtolower(trim($row['NAMA_HARI']))); // Contoh: 'SENIN    ' => 'Senin'
+        if (array_key_exists($namaHari, $penjualan)) {
+            $penjualan[$namaHari] = (float)$row['PENJUALAN'];
+        }
+    }
+
+} else if ($periode == 'bulanan') {
+    // Ambil penjualan dari awal tahun sampai bulan ini
+    $query = oci_parse($conn, "
+        SELECT TO_NUMBER(TO_CHAR(t.TANGGAL, 'MM')) AS BULAN,
+               SUM(dt.SUBTOTAL) AS PENJUALAN
+        FROM TBL_TRANSAKSI t
+        JOIN TBL_DETAIL_TRANSAKSI dt ON t.ID_TRANSAKSI = dt.ID_TRANSAKSI
+        WHERE t.TANGGAL >= TRUNC(SYSDATE, 'YYYY')
+        GROUP BY TO_CHAR(t.TANGGAL, 'MM')
+    ");
+    oci_execute($query);
+    while ($row = oci_fetch_assoc($query)) {
+        $bulanIndex = (int)$row['BULAN'] - 1; // Januari = 0
+        if (isset($penjualan[$bulanIndex])) {
+            $penjualan[$bulanIndex] = (float)$row['PENJUALAN'];
+        }
+    }
 }
+
+// --- SIAPKAN DATA UNTUK CHART.JS ---
+
+$dataPenjualan = [];
+
+if ($periode == 'mingguan') {
+    foreach ($labels as $namaHari) {
+        $dataPenjualan[] = $penjualan[$namaHari];
+    }
+} else if ($periode == 'bulanan') {
+    foreach (range(0, 11) as $i) {
+        $dataPenjualan[] = $penjualan[$i];
+    }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -82,7 +125,7 @@ foreach ($hari as $h) {
         <a href="KasirDashboard.php" class="block text-gray-700 hover:text-purple-600 font-medium">🏠 Dashboard</a>
         <a href="DataBarang.php" class="block text-gray-700 hover:text-purple-600 font-medium">📦 Data Barang</a>
         <a href="Transaksi.php" class="block text-gray-700 hover:text-purple-600 font-medium">🛒 Transaksi</a>
-        <a href="riwayat.php" class="block text-gray-700 hover:text-purple-600 font-medium">📄 Riwayat</a>
+        <a href="Riwayat.php" class="block text-gray-700 hover:text-purple-600 font-medium">📄 Riwayat</a>
       </nav>
     </aside>
 
@@ -110,7 +153,12 @@ foreach ($hari as $h) {
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Chart -->
         <div class="bg-white p-6 rounded-xl shadow-sm lg:col-span-2">
-          <h3 class="text-lg font-semibold mb-4">Aktivitas Penjualan Mingguan</h3>
+          <h3 class="text-lg font-semibold mb-4">Aktivitas Penjualan <?= ucfirst($periode) ?></h3>
+          <!-- Dropdown untuk memilih periode -->
+          <select id="periode" onchange="updateChart()">
+            <option value="mingguan" <?= $periode == 'mingguan' ? 'selected' : '' ?>>Mingguan</option>
+            <option value="bulanan" <?= $periode == 'bulanan' ? 'selected' : '' ?>>Bulanan</option>
+          </select>
           <canvas id="salesChart" class="w-full h-64"></canvas>
         </div>
 
@@ -132,27 +180,32 @@ foreach ($hari as $h) {
 
   <!-- Chart.js Script -->
   <script>
-    const ctx = document.getElementById('salesChart').getContext('2d');
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
-        datasets: [{
-          label: 'Penjualan (Rp)',
-          data: <?php echo json_encode($dataPenjualan); ?>,  // Menyisipkan data PHP ke dalam JS
-          backgroundColor: 'rgba(139, 92, 246, 0.6)',
-          borderRadius: 8,
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: {
-            beginAtZero: true
-          }
+  const ctx = document.getElementById('salesChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: <?php echo json_encode($labels); ?>,
+      datasets: [{
+        label: 'Penjualan (Rp)',
+        data: <?php echo json_encode($dataPenjualan); ?>,
+        backgroundColor: 'rgba(139, 92, 246, 0.6)',
+        borderRadius: 8,
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true
         }
       }
-    });
-  </script>
+    }
+  });
+
+  function updateChart() {
+    const periode = document.getElementById('periode').value;
+    window.location.href = `KasirDashboard.php?periode=${periode}`;
+  }
+</script>
 </body>
 </html>

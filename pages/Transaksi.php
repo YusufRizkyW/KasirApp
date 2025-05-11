@@ -9,6 +9,7 @@ oci_execute($stmt);
 while ($row = oci_fetch_assoc($stmt)) {
     $barang[] = $row;
 }
+
 oci_free_statement($stmt);
 ?>
 
