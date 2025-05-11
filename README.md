@@ -1,4 +1,27 @@
 # KasirApp
+## Intruduction
+This is a cashier website project using Oracle21c services
+
+## What features are available?
+- Dashboard
+- Item Data
+- Transaction
+- History
+
+## Koneksi.php
+Modify this section, according to your connection
+```php
+<?php
+$conn = oci_connect('user oracle', 'password', '(DESCRIPTION=(ADDRESS=(PROTOCOL=....)(HOST=......)
+                        (PORT=.....))(CONNECT_DATA=(SERVICE_NAME=.....)))');
+if (!$conn) {
+    $e = oci_error();
+    error_log("Koneksi Oracle gagal: " . $e['message']);
+    die("Koneksi database gagal.");
+}
+?>
+```
+
 ## 📦 Struktur Tabel (Oracle SQL)
 
 ### 1️⃣ Tabel TB_BARANG
