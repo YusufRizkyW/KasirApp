@@ -1,5 +1,5 @@
 <?php
-include 'koneksi.php';
+include '../config/koneksi.php';
 
 // Ambil riwayat transaksi
 $query_transaksi = oci_parse($conn, "SELECT ID_TRANSAKSI, TANGGAL, TOTAL, KASIR FROM TBL_TRANSAKSI ORDER BY TANGGAL DESC");
@@ -12,7 +12,7 @@ while ($transaksi = oci_fetch_assoc($query_transaksi)) {
 
     // Ambil detail transaksi lengkap (pakai join untuk dapat nama barang)
     $query_detail = oci_parse($conn, "
-        SELECT d.KODE_BARANG, b.NAMA_BARANG, d.JUMLAH, d.SUBTOTAL
+        SELECT d.KODE_BARANG, b.NAMA_BARANG, d.JUMLAH, b.SATUAN, d.SUBTOTAL
         FROM TBL_DETAIL_TRANSAKSI d
         JOIN TBL_BARANG b ON d.KODE_BARANG = b.KODE_BARANG
         WHERE d.ID_TRANSAKSI = :id_transaksi
@@ -27,10 +27,11 @@ while ($transaksi = oci_fetch_assoc($query_transaksi)) {
 
     $transaksi['DETAIL'] = $detail_transaksi;
     $riwayat[] = $transaksi;
+
+    oci_free_statement($query_detail);
 }
 
 oci_free_statement($query_transaksi);
-oci_free_statement($query_detail);
 oci_close($conn);
 ?>
 
@@ -92,6 +93,7 @@ oci_close($conn);
                                             <th class="border px-4 py-2">Kode Barang</th>
                                             <th class="border px-4 py-2">Nama Barang</th>
                                             <th class="border px-4 py-2">Jumlah</th>
+                                            <th class="border px-4 py-2">Satuan</th>
                                             <th class="border px-4 py-2">Subtotal</th>
                                         </tr>
                                     </thead>
@@ -101,6 +103,7 @@ oci_close($conn);
                                                 <td class="border px-4 py-2"><?= $detail['KODE_BARANG'] ?></td>
                                                 <td class="border px-4 py-2"><?= $detail['NAMA_BARANG'] ?></td>
                                                 <td class="border px-4 py-2"><?= $detail['JUMLAH'] ?></td>
+                                                <td class="border px-4 py-2"><?= $detail['SATUAN'] ?></td>
                                                 <td class="border px-4 py-2">Rp <?= number_format($detail['SUBTOTAL'], 0, ',', '.') ?></td>
                                             </tr>
                                         <?php endforeach; ?>

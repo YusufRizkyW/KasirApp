@@ -1,5 +1,5 @@
 <?php
-include 'koneksi.php';
+include '../config/koneksi.php';
 
 // Total Barang
 $queryBarang = oci_parse($conn, "SELECT COUNT(*) AS TOTAL FROM TBL_BARANG");
@@ -15,8 +15,7 @@ $totalTransaksi = $rowTransaksi['TOTAL'];
 
 // Total Pendapatan
 $queryPendapatan = oci_parse($conn, "
-  SELECT SUM(COALESCE(dt.jumlah * dt.SUBTOTAL, 0)) AS TOTAL_PENDAPATAN
-  FROM TBL_DETAIL_TRANSAKSI dt
+  SELECT SUM(dt.SUBTOTAL) AS TOTAL_PENDAPATAN FROM TBL_DETAIL_TRANSAKSI dt
 ");
 oci_execute($queryPendapatan);
 $rowPendapatan = oci_fetch_assoc($queryPendapatan);

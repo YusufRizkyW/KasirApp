@@ -1,5 +1,5 @@
 <?php
-include 'koneksi.php';
+include '../config/koneksi.php';
 
 $kode = $_GET['kode'];
 $sql = "SELECT * FROM TBL_BARANG WHERE KODE_BARANG = :kode";
