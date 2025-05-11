@@ -1,6 +1,6 @@
 # KasirApp
 ## Intruduction
-This is a cashier website project using Oracle21c services
+This is a cashier website project using PHP and Oracle21c services
 
 ## What features are available?
 - Dashboard
