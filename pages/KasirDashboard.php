@@ -139,151 +139,240 @@ if ($periode == 'mingguan') {
   <title>Dashboard Kasir</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
     body { 
-      font-family: 'Inter', sans-serif; 
+      font-family: 'Poppins', sans-serif; 
       overflow-y: hidden;
       height: 100vh;
+      background-color: #f8f9fc;
+    }
+    .sidebar {
+      background: linear-gradient(180deg, #6d28d9 0%, #7c3aed 100%);
+      color: white;
+      height: 100vh;
+      position: fixed;
+      width: 250px;
+      transition: all 0.3s;
     }
     .sidebar-icon {
       width: 20px;
       text-align: center;
-      margin-right: 10px;
+      margin-right: 12px;
+    }
+    .sidebar-item {
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      transition: all 0.2s;
+    }
+    .sidebar-item:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    .sidebar-item.active {
+      background-color: rgba(255, 255, 255, 0.2);
+      font-weight: 600;
+    }
+    .content-wrapper {
+      margin-left: 250px;
+      padding: 1.5rem;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s;
+    }
+    .card:hover {
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
     }
     .card-icon {
-      width: 40px;
-      height: 40px;
+      width: 50px;
+      height: 50px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 50%;
-      background-color: rgba(139, 92, 246, 0.1);
-    }
-    .content-wrapper {
-      height: calc(100vh - 2rem);
+      border-radius: 10px;
     }
     .chart-container {
-      height: calc(100% - 2rem);
+      height: 300px;
+      width: 100%;
     }
-    .list-container {
-      max-height: calc(100vh - 150px);
+    .dropdown {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 0.5rem;
+      font-size: 0.875rem;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+    .list-item {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #f1f5f9;
+      transition: all 0.2s;
+    }
+    .list-item:last-child {
+      border-bottom: none;
+    }
+    .list-item:hover {
+      background-color: #f9fafb;
     }
   </style>
 </head>
-<body class="bg-gray-50">
-  <div class="flex h-screen">
+<body>
+  <div class="flex h-screen bg-gray-50">
     <!-- Sidebar -->
-    <aside class="w-64 bg-white shadow-md p-6">
-      <h2 class="text-2xl font-bold mb-8 text-purple-600">KasirApp</h2>
-      <nav class="space-y-3">
-        <a href="KasirDashboard.php" class="flex items-center p-2 rounded-lg bg-purple-100 text-purple-700 font-medium">
+    <aside class="sidebar w-64 text-white p-6 hidden md:block">
+      <div class="flex items-center space-x-3 mb-10">
+        <div class="bg-white p-2 rounded-lg">
+          <i class="fas fa-cash-register text-purple-600 text-xl"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-white">KasirApp</h2>
+      </div>
+      
+      <nav class="space-y-2">
+        <a href="KasirDashboard.php" class="flex items-center p-3 rounded-xl bg-white/20 text-white font-medium">
           <span class="sidebar-icon"><i class="fas fa-tachometer-alt"></i></span> Dashboard
         </a>
-        <a href="DataBarang.php" class="flex items-center p-2 rounded-lg hover:bg-purple-50 text-gray-700 hover:text-purple-600 font-medium">
+        <a href="DataBarang.php" class="flex items-center p-3 rounded-xl hover:bg-white/10 text-white/90 hover:text-white font-medium transition-all duration-200">
           <span class="sidebar-icon"><i class="fas fa-boxes-stacked"></i></span> Data Barang
         </a>
-        <a href="Transaksi.php" class="flex items-center p-2 rounded-lg hover:bg-purple-50 text-gray-700 hover:text-purple-600 font-medium">
+        <a href="Transaksi.php" class="flex items-center p-3 rounded-xl hover:bg-white/10 text-white/90 hover:text-white font-medium transition-all duration-200">
           <span class="sidebar-icon"><i class="fas fa-cash-register"></i></span> Transaksi
         </a>
-        <a href="Riwayat.php" class="flex items-center p-2 rounded-lg hover:bg-purple-50 text-gray-700 hover:text-purple-600 font-medium">
+        <a href="Riwayat.php" class="flex items-center p-3 rounded-xl hover:bg-white/10 text-white/90 hover:text-white font-medium transition-all duration-200">
           <span class="sidebar-icon"><i class="fas fa-history"></i></span> Riwayat
         </a>
       </nav>
+      
+      <!-- <div class="absolute bottom-0 left-0 w-64 p-6">
+        <div class="bg-white/10 p-4 rounded-xl">
+          <div class="flex items-center space-x-3 mb-3">
+            <div class="bg-purple-200 text-purple-700 p-2 rounded-lg">
+              <i class="fas fa-user"></i>
+            </div>
+            <div>
+              <h4 class="font-medium text-white">Admin</h4>
+              <p class="text-xs text-white/70">admin@kasirapp.com</p>
+            </div>
+          </div>
+          <a href="../logout.php" class="flex items-center justify-center p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-all duration-200">
+            <i class="fas fa-sign-out-alt mr-2"></i> Logout
+          </a>
+        </div>
+      </div> -->
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 p-6 overflow-hidden">
-      <div class="content-wrapper flex flex-col">
-        <h1 class="text-2xl font-semibold text-gray-800 mb-4">Selamat datang, Kasir 👋</h1>
+    <main class="content-wrapper">
+      <div class="flex flex-col h-full">
+        <div class="flex justify-between items-center mb-8">
+          <h1 class="text-2xl font-semibold text-gray-800">Selamat datang, Kasir 👋</h1>
+          <div class="flex items-center space-x-4">
+            <div class="bg-white p-2 rounded-full shadow-sm">
+              <i class="fas fa-bell text-gray-600"></i>
+            </div>
+            <div class="bg-indigo-600 text-white p-2 rounded-full shadow-sm">
+              <i class="fas fa-user"></i>
+            </div>
+          </div>
+        </div>
 
         <!-- Summary Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div class="bg-white p-4 rounded-xl shadow-sm flex items-center space-x-4">
-            <div class="card-icon">
-              <i class="fas fa-boxes-stacked text-purple-600 text-xl"></i>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div class="card p-6 flex items-center space-x-4">
+            <div class="card-icon bg-indigo-100 text-indigo-600">
+              <i class="fas fa-boxes-stacked text-2xl"></i>
             </div>
             <div>
-              <p class="text-sm text-gray-600">Total Barang</p>
-              <h2 class="text-xl font-bold"><?= $totalBarang ?></h2>
+              <p class="text-sm text-gray-500 mb-1">Total Barang</p>
+              <h2 class="text-2xl font-bold text-gray-800"><?= $totalBarang ?></h2>
             </div>
           </div>
-          <div class="bg-white p-4 rounded-xl shadow-sm flex items-center space-x-4">
-            <div class="card-icon">
-              <i class="fas fa-warehouse text-purple-600 text-xl"></i>
+          <div class="card p-6 flex items-center space-x-4">
+            <div class="card-icon bg-green-100 text-green-600">
+              <i class="fas fa-warehouse text-2xl"></i>
             </div>
             <div>
-              <p class="text-sm text-gray-600">Total Stok</p>
-              <h2 class="text-xl font-bold"><?= $totalStok ?></h2>
+              <p class="text-sm text-gray-500 mb-1">Total Stok</p>
+              <h2 class="text-2xl font-bold text-gray-800"><?= $totalStok ?></h2>
             </div>
           </div>
-          <div class="bg-white p-4 rounded-xl shadow-sm flex items-center space-x-4">
-            <div class="card-icon">
-              <i class="fas fa-receipt text-purple-600 text-xl"></i>
+          <div class="card p-6 flex items-center space-x-4">
+            <div class="card-icon bg-blue-100 text-blue-600">
+              <i class="fas fa-receipt text-2xl"></i>
             </div>
             <div>
-              <p class="text-sm text-gray-600">Total Transaksi</p>
-              <h2 class="text-xl font-bold"><?= $totalTransaksi ?></h2>
+              <p class="text-sm text-gray-500 mb-1">Total Transaksi</p>
+              <h2 class="text-2xl font-bold text-gray-800"><?= $totalTransaksi ?></h2>
             </div>
           </div>
-          <div class="bg-white p-4 rounded-xl shadow-sm flex items-center space-x-4">
-            <div class="card-icon">
-              <i class="fas fa-money-bill-wave text-purple-600 text-xl"></i>
+          <div class="card p-6 flex items-center space-x-4">
+            <div class="card-icon bg-purple-100 text-purple-600">
+              <i class="fas fa-money-bill-wave text-2xl"></i>
             </div>
             <div>
-              <p class="text-sm text-gray-600">Total Pendapatan</p>
-              <h2 class="text-xl font-bold">Rp <?= number_format($totalPendapatan, 0, ',', '.') ?></h2>
+              <p class="text-sm text-gray-500 mb-1">Total Pendapatan</p>
+              <h2 class="text-2xl font-bold text-gray-800">Rp <?= number_format($totalPendapatan, 0, ',', '.') ?></h2>
             </div>
           </div>
         </div>
 
         <!-- Chart and Recent Transactions -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 overflow-hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 mb-6">
           <!-- Chart -->
-          <div class="bg-white p-4 rounded-xl shadow-sm lg:col-span-2 flex flex-col">
-            <div class="flex justify-between items-center mb-2">
-              <h3 class="text-lg font-semibold">Aktivitas Penjualan <?= ucfirst($periode) ?></h3>
-              <select id="periode" onchange="updateChart()" class="p-1 border rounded text-sm">
+          <div class="card p-6 lg:col-span-2 flex flex-col">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-semibold text-gray-800">Aktivitas Penjualan <?= ucfirst($periode) ?></h3>
+              <select id="periode" onchange="updateChart()" class="dropdown">
                 <option value="mingguan" <?= $periode == 'mingguan' ? 'selected' : '' ?>>Mingguan</option>
                 <option value="bulanan" <?= $periode == 'bulanan' ? 'selected' : '' ?>>Bulanan</option>
               </select>
             </div>
             <div class="chart-container flex-1">
-              <canvas id="salesChart" class="w-full h-full"></canvas>
+              <canvas id="salesChart"></canvas>
             </div>
           </div>
 
           <!-- Recent Transactions + Barang Terlaris -->
-          <div class="flex flex-col gap-4 list-container">
+          <div class="flex flex-col gap-6">
             <!-- Transaksi Terakhir -->
-            <div class="bg-white p-4 rounded-xl shadow-sm flex-1">
-              <h3 class="text-lg font-semibold mb-3 flex items-center">
-                <i class="fas fa-history text-purple-600 mr-2"></i> Transaksi Terakhir
+            <div class="card p-6 flex-1">
+              <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-history text-indigo-600 mr-2"></i> Transaksi Terakhir
               </h3>
-              <ul class="text-sm space-y-3">
+              <div class="space-y-3">
                 <?php foreach ($transaksiTerakhir as $trx): ?>
-                  <li class="flex justify-between border-b pb-2">
-                    <span>#<?= $trx['ID_TRANSAKSI'] ?></span>
-                    <span class="font-medium">Rp <?= number_format($trx['TOTAL'], 0, ',', '.') ?></span>
-                  </li>
+                  <div class="list-item flex justify-between items-center">
+                    <div>
+                      <span class="font-medium text-gray-800">#<?= $trx['ID_TRANSAKSI'] ?></span>
+                      <div class="text-xs text-gray-500"><?= date("d M Y", strtotime($trx['TANGGAL'])) ?></div>
+                    </div>
+                    <span class="font-medium text-indigo-600">Rp <?= number_format($trx['TOTAL'], 0, ',', '.') ?></span>
+                  </div>
                 <?php endforeach; ?>
-              </ul>
+              </div>
             </div>
 
             <!-- Penjualan Terlaris -->
-            <div class="bg-white p-4 rounded-xl shadow-sm flex-1">
-              <h3 class="text-lg font-semibold mb-3 flex items-center">
-                <i class="fas fa-fire text-purple-600 mr-2"></i> Penjualan Terlaris
+            <div class="card p-6 flex-1">
+              <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-fire text-orange-500 mr-2"></i> Penjualan Terlaris
               </h3>
-              <ul class="text-sm space-y-3">
+              <div class="space-y-3">
                 <?php foreach ($barangTerlaris as $item): ?>
-                  <li class="flex justify-between border-b pb-2">
-                    <span class="truncate pr-2"><?= htmlspecialchars($item['NAMA_BARANG']) ?></span>
-                    <span class="font-medium"><?= $item['TOTAL_JUMLAH'] ?>x</span>
-                  </li>
+                  <div class="list-item flex justify-between items-center">
+                    <span class="truncate text-gray-800"><?= htmlspecialchars($item['NAMA_BARANG']) ?></span>
+                    <span class="font-medium text-orange-500"><?= $item['TOTAL_JUMLAH'] ?>x</span>
+                  </div>
                 <?php endforeach; ?>
-              </ul>
+              </div>
             </div>
           </div>
         </div>
@@ -301,8 +390,11 @@ if ($periode == 'mingguan') {
         datasets: [{
           label: 'Penjualan',
           data: <?= json_encode($dataPenjualan) ?>,
-          backgroundColor: 'rgba(139, 92, 246, 0.7)', // purple-500
-          borderRadius: 5
+          backgroundColor: 'rgba(99, 102, 241, 0.7)', // indigo-500
+          borderColor: 'rgba(79, 70, 229, 1)', // indigo-600
+          borderWidth: 1,
+          borderRadius: 6,
+          hoverBackgroundColor: 'rgba(79, 70, 229, 0.9)'
         }]
       },
       options: {
@@ -310,7 +402,20 @@ if ($periode == 'mingguan') {
         maintainAspectRatio: false,
         scales: {
           y: {
-            beginAtZero: true
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(0, 0, 0, 0.05)'
+            }
+          },
+          x: {
+            grid: {
+              display: false
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            display: false
           }
         }
       }

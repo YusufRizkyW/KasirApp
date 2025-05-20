@@ -46,29 +46,63 @@ function format_rupiah($angka) {
     <meta charset="UTF-8">
     <title>Riwayat Transaksi</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f3f4f6; /* Light gray background */
+        }
+        .sidebar {
+            background: linear-gradient(180deg, #6b46c1 0%, #805ad5 100%); /* Purple gradient */
+        }
+        .sidebar h2 {
+            color: white;
+        }
+        .sidebar a {
+            color: #e2e8f0; /* Light text color */
+        }
+        .sidebar a:hover {
+            color: white; /* White on hover */
+        }
+        .table-header {
+            background-color: #6b46c1; /* Purple header */
+            color: white; /* White text */
+        }
+        .table-row {
+            background-color: white; /* White rows */
+        }
+        .table-row:hover {
+            background-color: #f7f7f7; /* Light gray on hover */
+        }
+        .button {
+            background-color: #6b46c1; /* Purple button */
+            color: white; /* White text */
+        }
+        .button:hover {
+            background-color: #805ad5; /* Lighter purple on hover */
+        }
+    </style>
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="font-sans">
 
 <div class="flex min-h-screen">
     <!-- Sidebar -->
-    <aside class="w-64 bg-white shadow-md p-6">
-        <h2 class="text-2xl font-bold mb-10 text-purple-600">KasirApp</h2>
+    <aside class="w-64 shadow-md p-6 sidebar">
+        <h2 class="text-2xl font-bold mb-10">KasirApp</h2>
         <nav class="space-y-4">
-            <a href="KasirDashboard.php" class="block text-gray-700 hover:text-purple-600 font-medium">🏠 Dashboard</a>
-            <a href="DataBarang.php" class="block text-gray-700 hover:text-purple-600 font-medium">📦 Data Barang</a>
-            <a href="Transaksi.php" class="block text-gray-700 hover:text-purple-600 font-medium">🛒 Transaksi</a>
-            <a href="riwayat.php" class="block text-gray-700 hover:text-purple-600 font-medium">📄 Riwayat</a>
+            <a href="KasirDashboard.php" class="block hover:text-purple-300 font-medium">🏠 Dashboard</a>
+            <a href="DataBarang.php" class="block hover:text-purple-300 font-medium">📦 Data Barang</a>
+            <a href="Transaksi.php" class="block hover:text-purple-300 font-medium">🛒 Transaksi</a>
+            <a href="riwayat.php" class="block hover:text-purple-300 font-medium">📄 Riwayat</a>
         </nav>
     </aside>
 
     <!-- Main Content -->
     <main class="flex-1 p-6">
-        <h1 class="text-3xl font-bold mb-6">Riwayat Transaksi</h1>
+        <h1 class="text-3xl font-bold mb-6 text-purple-600">Riwayat Transaksi</h1>
 
         <!-- Tabel Riwayat Transaksi -->
         <table class="w-full border-collapse bg-white rounded-lg shadow-lg">
             <thead>
-                <tr class="bg-gray-200 text-sm text-left">
+                <tr class="table-header text-sm text-left">
                     <th class="border px-4 py-2">ID Transaksi</th>
                     <th class="border px-4 py-2">Tanggal</th>
                     <th class="border px-4 py-2">Kasir</th>
@@ -79,7 +113,7 @@ function format_rupiah($angka) {
             </thead>
             <tbody>
                 <?php foreach ($riwayat as $transaksi): ?>
-                    <tr class="bg-white">
+                    <tr class="table-row">
                         <td class="border px-4 py-2"><?= $transaksi['ID_TRANSAKSI'] ?></td>
                         <td class="border px-4 py-2"><?= date("d-m-Y H:i:s", strtotime($transaksi['TANGGAL'])) ?></td>
                         <td class="border px-4 py-2"><?= $transaksi['KASIR'] ?></td>
@@ -93,11 +127,11 @@ function format_rupiah($angka) {
                         <td class="border px-4 py-2"><?= format_rupiah($total) ?></td>
                         <td class="border px-4 py-2"><?= format_rupiah($kembalian) ?></td>
                         <td class="border px-4 py-2 text-center">
-                            <button onclick="toggleDetail(<?= $transaksi['ID_TRANSAKSI'] ?>)" class="bg-blue-500 text-white px-4 py-2 rounded">Lihat Detail</button>
+                            <button onclick="toggleDetail(<?= $transaksi['ID_TRANSAKSI'] ?>)" class="button px-4 py-2 rounded">Lihat Detail</button>
                             <!-- Tombol Hapus -->
                             <form action="hapus_transaksi.php" method="POST" onsubmit="return confirm('Yakin ingin menghapus transaksi ini?');" class="inline">
                                 <input type="hidden" name="id_transaksi" value="<?= $transaksi['ID_TRANSAKSI'] ?>">
-                                <button type="submit" title="Hapus Transaksi" class="bg-red-500 text-white px-4 py-2 rounded">Hapus</button>
+                                <button type="submit" title="Hapus Transaksi" class="button px-4 py-2 rounded">Hapus</button>
                             </form>
                         </td>
                     </tr>
