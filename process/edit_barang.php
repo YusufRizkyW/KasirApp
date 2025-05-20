@@ -1,12 +1,17 @@
 <?php
 include '../config/koneksi.php';
 
+if (!isset($_GET['kode'])) {
+    echo "Kode barang tidak ditemukan.";
+    exit;
+}
 $kode = $_GET['kode'];
 $query = "SELECT * FROM TBL_BARANG WHERE KODE_BARANG = :kode";
 $statement = oci_parse($conn, $query);
 oci_bind_by_name($statement, ':kode', $kode);
 oci_execute($statement);
 $data = oci_fetch_assoc($statement);
+
 ?>
 
 <!DOCTYPE html>
@@ -20,7 +25,14 @@ $data = oci_fetch_assoc($statement);
   <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow">
     <h2 class="text-2xl font-semibold mb-4">Edit Barang</h2>
     <form action="../process/proses_edit_barang.php" method="POST">
-      <input type="hidden" name="kode" value="<?= $data['KODE_BARANG'] ?>">
+
+      <input type="hidden" name="kode_lama" value="<?= $data['KODE_BARANG'] ?>"> 
+
+      <div class="mb-4">
+        <label for="kode_barang">Kode Barang</label>
+        <input type="text" name="kode_barang" id="kode_barang" value="<?= $data['KODE_BARANG'] ?>" required class="w-full border px-3 py-2 rounded">
+      </div>
+      
       <div class="mb-4">
         <label>Nama Barang</label>
         <input type="text" name="nama" value="<?= $data['NAMA_BARANG'] ?>" required class="w-full border px-3 py-2 rounded">
@@ -30,9 +42,12 @@ $data = oci_fetch_assoc($statement);
         <label for="kategori" class="block font-medium">Kategori</label>
         <select name="kategori" id="kategori" required class="w-full border px-3 py-2 rounded">
           <option value="">-- Pilih Kategori --</option>
+          <option value="Alat Tulis Kantor" <?= $data['KATEGORI'] == 'Alat Tulis Kantor' ? 'selected' : '' ?>>Alat Tulis Kantor</option>
           <option value="Bahan Makanan" <?= $data['KATEGORI'] == 'Bahan Makanan' ? 'selected' : '' ?>>Bahan Makanan</option>
           <option value="Makanan" <?= $data['KATEGORI'] == 'Makanan' ? 'selected' : '' ?>>Makanan</option>
           <option value="Minuman" <?= $data['KATEGORI'] == 'Minuman' ? 'selected' : '' ?>>Minuman</option>
+          <option value="Perlengkapan Mandi" <?= $data['KATEGORI'] == 'Perlengkapan Mandi' ? 'selected' : '' ?>>Perlengkapan Mandi</option>
+          <option value="Snack" <?= $data['KATEGORI'] == 'Snack' ? 'selected' : '' ?>>Snack</option>
         </select>
       </div>
 
@@ -45,11 +60,12 @@ $data = oci_fetch_assoc($statement);
         <label for="satuan" class="block font-medium">Satuan</label>
         <select name="satuan" id="satuan" required class="w-full border px-3 py-2 rounded">
           <option value="">-- Pilih Satuan --</option>
-          <option value="pcs" <?= $data['SATUAN'] == 'pcs' ? 'selected' : '' ?>>pcs</option>
+          <option value="botol" <?= $data['SATUAN'] == 'botol' ? 'selected' : '' ?>>botol</option>
+          <option value="dus" <?= $data['SATUAN'] == 'dus' ? 'selected' : '' ?>>dus</option>
           <option value="kg" <?= $data['SATUAN'] == 'kg' ? 'selected' : '' ?>>kg</option>
           <option value="liter" <?= $data['SATUAN'] == 'liter' ? 'selected' : '' ?>>liter</option>
           <option value="pak" <?= $data['SATUAN'] == 'pak' ? 'selected' : '' ?>>pak</option>
-          <option value="dus" <?= $data['SATUAN'] == 'dus' ? 'selected' : '' ?>>dus</option>
+          <option value="pcs" <?= $data['SATUAN'] == 'pcs' ? 'selected' : '' ?>>pcs</option>
         </select>
       </div>
       

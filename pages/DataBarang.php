@@ -19,13 +19,12 @@
       }
     };
         
-    // Hilangkan pesan sukses setelah 5 detik
-    setTimeout(function() {
-      var alertMsg = document.getElementById('alert-msg');
-      if (alertMsg) {
-        alertMsg.style.display = 'none';
-      }
-    }, 5000);
+    <?php if (isset($_GET['status'])): ?>
+      <div id="alert-msg" class="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded mb-4">
+        <?= $_GET['status'] == 'edited' ? 'Data berhasil diperbarui!' : 'Gagal mengedit data.' ?>
+      </div>
+    <?php endif; ?>
+
   </script>
 </head>
 <body class="bg-gray-50">
@@ -124,9 +123,12 @@
               <label for="kategori" class="block font-medium">Kategori</label>
                 <select name="kategori" id="kategori" required class="w-full border px-3 py-2 rounded">
                   <option value="">-- Pilih Kategori --</option>
+                  <option value="Alat Tulis Kantor">Alat Tulis Kantor</option>
                   <option value="Bahan Makanan">Bahan Makanan</option>
                   <option value="Makanan">Makanan</option>
                   <option value="Minuman">Minuman</option>
+                  <option value="Perlengkapan Mandi">Perlengkapan Mandi</option>
+                  <option value="Snack">Snack</option>
                 </select>
             </div>
 
@@ -139,11 +141,12 @@
               <label for="satuan" class="block font-medium">Satuan</label>
               <select name="satuan" id="satuan" required class="w-full border px-3 py-2 rounded">
                 <option value="">-- Pilih Satuan --</option>
-                <option value="pcs">pcs</option>
+                <option value="botol">botol</option>
+                <option value="dus">dus</option>
                 <option value="kg">kg</option>
                 <option value="liter">liter</option>
                 <option value="pak">pak</option>
-                <option value="dus">dus</option>
+                <option value="pcs">pcs</option>
               </select>
             </div>
 

@@ -96,6 +96,7 @@ oci_free_statement($stmt);
 
             <input type="hidden" name="keranjang" id="keranjang_input">
             <input type="hidden" name="total_bayar" id="total_bayar">
+            <input type="hidden" name="total" id="total_input">
 
             <div class="flex justify-end mt-6">
                 <button type="submit" name="submit_transaksi" class="bg-green-600 text-white px-6 py-3 rounded-md">Simpan Transaksi</button>

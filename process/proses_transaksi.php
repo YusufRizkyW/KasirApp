@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_transaksi'])) 
     }
 
     oci_commit($conn);
-
+    
     echo "<script>
         alert('Transaksi berhasil!');
         window.location.href='../pages/Transaksi.php';
