@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_transaksi'])) {
     oci_close($conn);
 
     if ($detail_deleted && $transaksi_deleted) {
-        header("Location: Riwayat.php");
+        header("Location: ../pages/Riwayat.php");
         exit;
     } else {
         echo "Gagal menghapus transaksi.";

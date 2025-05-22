@@ -2,7 +2,7 @@
 include '../config/koneksi.php';
 
 // Default periode to 'mingguan' if not set in the query string
-$periode = isset($_GET['periode']) ? $_GET['periode'] : 'mingguan';  // Default to 'mingguan'
+$periode = isset($_GET['periode']) ? $_GET['periode'] : 'mingguan';
 
 // Total Barang
 $queryBarang = oci_parse($conn, "SELECT COUNT(*) AS TOTAL FROM TBL_BARANG");
@@ -23,9 +23,7 @@ $rowTransaksi = oci_fetch_assoc($queryTransaksi);
 $totalTransaksi = $rowTransaksi['TOTAL'];
 
 // Total Pendapatan
-$queryPendapatan = oci_parse($conn, "
-  SELECT SUM(dt.SUBTOTAL) AS TOTAL_PENDAPATAN FROM TBL_DETAIL_TRANSAKSI dt
-");
+$queryPendapatan = oci_parse($conn, "SELECT SUM(dt.SUBTOTAL) AS TOTAL_PENDAPATAN FROM TBL_DETAIL_TRANSAKSI dt");
 oci_execute($queryPendapatan);
 $rowPendapatan = oci_fetch_assoc($queryPendapatan);
 $totalPendapatan = $rowPendapatan['TOTAL_PENDAPATAN'] ?? 0;
@@ -70,16 +68,14 @@ while ($row = oci_fetch_assoc($queryTransaksiTerakhir)) {
 // Inisialisasi array penjualan sesuai dengan periode
 if ($periode == 'mingguan') {
     $labels = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
-    $penjualan = array_fill_keys($labels, 0); // Key: nama hari
+    $penjualan = array_fill_keys($labels, 0);
 } else if ($periode == 'bulanan') {
     $labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-    $penjualan = array_fill(0, 12, 0); // Index 0–11 untuk bulan
+    $penjualan = array_fill(0, 12, 0);
 }
 
-// --- QUERY DAN PENGOLAHAN DATA ---
-
+// Data penjualan berdasarkan periode
 if ($periode == 'mingguan') {
-    // Ambil penjualan 7 hari terakhir, urut berdasarkan nama hari (Senin - Minggu)
     $query = oci_parse($conn, "
         SELECT TO_CHAR(t.TANGGAL, 'DAY', 'NLS_DATE_LANGUAGE=INDONESIAN') AS NAMA_HARI,
                SUM(dt.SUBTOTAL) AS PENJUALAN
@@ -90,14 +86,12 @@ if ($periode == 'mingguan') {
     ");
     oci_execute($query);
     while ($row = oci_fetch_assoc($query)) {
-        $namaHari = ucfirst(strtolower(trim($row['NAMA_HARI']))); // Contoh: 'SENIN    ' => 'Senin'
+        $namaHari = ucfirst(strtolower(trim($row['NAMA_HARI'])));
         if (array_key_exists($namaHari, $penjualan)) {
             $penjualan[$namaHari] = (float)$row['PENJUALAN'];
         }
     }
-
 } else if ($periode == 'bulanan') {
-    // Ambil penjualan dari awal tahun sampai bulan ini
     $query = oci_parse($conn, "
         SELECT TO_NUMBER(TO_CHAR(t.TANGGAL, 'MM')) AS BULAN,
                SUM(dt.SUBTOTAL) AS PENJUALAN
@@ -115,10 +109,8 @@ if ($periode == 'mingguan') {
     }
 }
 
-// --- SIAPKAN DATA UNTUK CHART.JS ---
-
+// Siapkan data untuk Chart.JS
 $dataPenjualan = [];
-
 if ($periode == 'mingguan') {
     foreach ($labels as $namaHari) {
         $dataPenjualan[] = $penjualan[$namaHari];
@@ -128,7 +120,6 @@ if ($periode == 'mingguan') {
         $dataPenjualan[] = $penjualan[$i];
     }
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -144,17 +135,15 @@ if ($periode == 'mingguan') {
   <style>
     body { 
       font-family: 'Poppins', sans-serif; 
-      overflow-y: hidden;
-      height: 100vh;
       background-color: #f8f9fc;
     }
     .sidebar {
       background: linear-gradient(180deg, #6d28d9 0%, #7c3aed 100%);
-      color: white;
       height: 100vh;
       position: fixed;
       width: 250px;
       transition: all 0.3s;
+      z-index: 10;
     }
     .sidebar-icon {
       width: 20px;
@@ -168,13 +157,6 @@ if ($periode == 'mingguan') {
       display: flex;
       align-items: center;
       transition: all 0.2s;
-    }
-    .sidebar-item:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-    }
-    .sidebar-item.active {
-      background-color: rgba(255, 255, 255, 0.2);
-      font-weight: 600;
     }
     .content-wrapper {
       margin-left: 250px;
@@ -223,12 +205,29 @@ if ($periode == 'mingguan') {
     .list-item:hover {
       background-color: #f9fafb;
     }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 0;
+        overflow: hidden;
+      }
+      .content-wrapper {
+        margin-left: 0;
+      }
+      .mobile-menu-open .sidebar {
+        width: 250px;
+      }
+      .mobile-menu-open .content-wrapper {
+        margin-left: 250px;
+      }
+    }
   </style>
 </head>
-<body>
-  <div class="flex h-screen bg-gray-50">
+<body class="bg-gray-50">
+  <div class="flex min-h-screen">
     <!-- Sidebar -->
-    <aside class="sidebar w-64 text-white p-6 hidden md:block">
+    <aside class="sidebar text-white p-6">
       <div class="flex items-center space-x-3 mb-10">
         <div class="bg-white p-2 rounded-lg">
           <i class="fas fa-cash-register text-purple-600 text-xl"></i>
@@ -250,42 +249,22 @@ if ($periode == 'mingguan') {
           <span class="sidebar-icon"><i class="fas fa-history"></i></span> Riwayat
         </a>
       </nav>
-      
-      <!-- <div class="absolute bottom-0 left-0 w-64 p-6">
-        <div class="bg-white/10 p-4 rounded-xl">
-          <div class="flex items-center space-x-3 mb-3">
-            <div class="bg-purple-200 text-purple-700 p-2 rounded-lg">
-              <i class="fas fa-user"></i>
-            </div>
-            <div>
-              <h4 class="font-medium text-white">Admin</h4>
-              <p class="text-xs text-white/70">admin@kasirapp.com</p>
-            </div>
-          </div>
-          <a href="../logout.php" class="flex items-center justify-center p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-all duration-200">
-            <i class="fas fa-sign-out-alt mr-2"></i> Logout
-          </a>
-        </div>
-      </div> -->
     </aside>
 
+    <!-- Mobile menu button -->
+    <button id="mobile-menu-button" class="md:hidden fixed top-4 right-4 z-20 bg-indigo-600 text-white p-3 rounded-full shadow-lg">
+      <i class="fas fa-bars"></i>
+    </button>
+
     <!-- Main Content -->
-    <main class="content-wrapper">
+    <main class="content-wrapper flex-1">
       <div class="flex flex-col h-full">
         <div class="flex justify-between items-center mb-8">
           <h1 class="text-2xl font-semibold text-gray-800">Selamat datang, Kasir 👋</h1>
-          <div class="flex items-center space-x-4">
-            <div class="bg-white p-2 rounded-full shadow-sm">
-              <i class="fas fa-bell text-gray-600"></i>
-            </div>
-            <div class="bg-indigo-600 text-white p-2 rounded-full shadow-sm">
-              <i class="fas fa-user"></i>
-            </div>
-          </div>
         </div>
 
         <!-- Summary Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div class="card p-6 flex items-center space-x-4">
             <div class="card-icon bg-indigo-100 text-indigo-600">
               <i class="fas fa-boxes-stacked text-2xl"></i>
@@ -305,15 +284,6 @@ if ($periode == 'mingguan') {
             </div>
           </div>
           <div class="card p-6 flex items-center space-x-4">
-            <div class="card-icon bg-blue-100 text-blue-600">
-              <i class="fas fa-receipt text-2xl"></i>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500 mb-1">Total Transaksi</p>
-              <h2 class="text-2xl font-bold text-gray-800"><?= $totalTransaksi ?></h2>
-            </div>
-          </div>
-          <div class="card p-6 flex items-center space-x-4">
             <div class="card-icon bg-purple-100 text-purple-600">
               <i class="fas fa-money-bill-wave text-2xl"></i>
             </div>
@@ -325,9 +295,9 @@ if ($periode == 'mingguan') {
         </div>
 
         <!-- Chart and Recent Transactions -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 mb-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           <!-- Chart -->
-          <div class="card p-6 lg:col-span-2 flex flex-col">
+          <div class="card p-6 lg:col-span-2 flex flex-col h-full">
             <div class="flex justify-between items-center mb-4">
               <h3 class="text-lg font-semibold text-gray-800">Aktivitas Penjualan <?= ucfirst($periode) ?></h3>
               <select id="periode" onchange="updateChart()" class="dropdown">
@@ -340,7 +310,7 @@ if ($periode == 'mingguan') {
             </div>
           </div>
 
-          <!-- Recent Transactions + Barang Terlaris -->
+          <!-- Right Column -->
           <div class="flex flex-col gap-6">
             <!-- Transaksi Terakhir -->
             <div class="card p-6 flex-1">
@@ -357,6 +327,10 @@ if ($periode == 'mingguan') {
                     <span class="font-medium text-indigo-600">Rp <?= number_format($trx['TOTAL'], 0, ',', '.') ?></span>
                   </div>
                 <?php endforeach; ?>
+                
+                <?php if (count($transaksiTerakhir) === 0): ?>
+                  <div class="text-center text-gray-500">Belum ada transaksi</div>
+                <?php endif; ?>
               </div>
             </div>
 
@@ -372,26 +346,41 @@ if ($periode == 'mingguan') {
                     <span class="font-medium text-orange-500"><?= $item['TOTAL_JUMLAH'] ?>x</span>
                   </div>
                 <?php endforeach; ?>
+                
+                <?php if (count($barangTerlaris) === 0): ?>
+                  <div class="text-center text-gray-500">Belum ada data penjualan</div>
+                <?php endif; ?>
               </div>
             </div>
           </div>
         </div>
+        
+        <!-- Footer -->
+        <footer class="mt-auto pt-6 pb-2">
+          <p class="text-center text-sm text-gray-500">© 2024 KasirApp. All rights reserved.</p>
+        </footer>
       </div>
     </main>
   </div>
 
   <script>
+    // Mobile menu toggle
+    document.getElementById('mobile-menu-button')?.addEventListener('click', function() {
+      document.body.classList.toggle('mobile-menu-open');
+    });
+  
+    // Setup chart
     const ctx = document.getElementById('salesChart').getContext('2d');
-
+    
     const chart = new Chart(ctx, {
       type: 'bar',
       data: {
         labels: <?= json_encode($labels) ?>,
         datasets: [{
-          label: 'Penjualan',
+          label: 'Penjualan (Rp)',
           data: <?= json_encode($dataPenjualan) ?>,
-          backgroundColor: 'rgba(99, 102, 241, 0.7)', // indigo-500
-          borderColor: 'rgba(79, 70, 229, 1)', // indigo-600
+          backgroundColor: 'rgba(99, 102, 241, 0.7)',
+          borderColor: 'rgba(79, 70, 229, 1)',
           borderWidth: 1,
           borderRadius: 6,
           hoverBackgroundColor: 'rgba(79, 70, 229, 0.9)'
@@ -405,6 +394,11 @@ if ($periode == 'mingguan') {
             beginAtZero: true,
             grid: {
               color: 'rgba(0, 0, 0, 0.05)'
+            },
+            ticks: {
+              callback: function(value) {
+                return 'Rp ' + value.toLocaleString('id-ID');
+              }
             }
           },
           x: {
@@ -416,6 +410,13 @@ if ($periode == 'mingguan') {
         plugins: {
           legend: {
             display: false
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return 'Rp ' + context.raw.toLocaleString('id-ID');
+              }
+            }
           }
         }
       }
