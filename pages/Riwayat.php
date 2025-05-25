@@ -185,57 +185,57 @@ function format_rupiah($angka) {
 
             <!-- Stats Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <!-- Total Transaksi -->
-                <div class="bg-white rounded-xl p-6 shadow-sm border-l-4 border-purple-500 stat-card">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-gray-500 font-medium">Total Transaksi</p>
-                            <p class="text-2xl font-bold text-gray-800 mt-1"><?= $total_transaksi ?></p>
-                        </div>
-                        <div class="bg-purple-100 p-3 rounded-lg">
-                            <i class="fas fa-receipt text-purple-600 text-xl"></i>
-                        </div>
-                    </div>
+            <!-- Total Transaksi -->
+            <div class="bg-white border-l-4 border-purple-500 rounded-xl p-6 shadow-sm">
+                <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-500 font-medium">Total Transaksi</p>
+                    <p class="text-2xl font-bold text-gray-800 mt-1"><?= $total_transaksi ?></p>
                 </div>
-                
-                <!-- Total Pendapatan -->
-                <div class="bg-white rounded-xl p-6 shadow-sm border-l-4 border-green-500 stat-card">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-gray-500 font-medium">Total Pendapatan</p>
-                            <p class="text-2xl font-bold text-gray-800 mt-1"><?= format_rupiah($total_pendapatan) ?></p>
-                        </div>
-                        <div class="bg-green-100 p-3 rounded-lg">
-                            <i class="fas fa-money-bill-wave text-green-600 text-xl"></i>
-                        </div>
-                    </div>
+                <div class="bg-purple-100 p-3 rounded-lg">
+                    <i class="fas fa-receipt text-purple-600 text-xl"></i>
                 </div>
-                
-                <!-- Rata-rata Transaksi -->
-                <!-- <div class="bg-white rounded-xl p-6 shadow-sm border-l-4 border-blue-500 stat-card">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-gray-500 font-medium">Rata-rata Transaksi</p>
-                            <p class="text-2xl font-bold text-gray-800 mt-1"><?= format_rupiah($rata_rata_transaksi) ?></p>
-                        </div>
-                        <div class="bg-blue-100 p-3 rounded-lg">
-                            <i class="fas fa-chart-line text-blue-600 text-xl"></i>
-                        </div>
-                    </div>
-                </div> -->
-                
-                <!-- Transaksi Hari Ini -->
-                <div class="bg-white rounded-xl p-6 shadow-sm border-l-4 border-amber-500 stat-card">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-gray-500 font-medium">Transaksi Hari Ini</p>
-                            <p class="text-2xl font-bold text-gray-800 mt-1"><?= $transaksi_hari_ini ?></p>
-                        </div>
-                        <div class="bg-amber-100 p-3 rounded-lg">
-                            <i class="fas fa-calendar-day text-amber-600 text-xl"></i>
-                        </div>
-                    </div>
                 </div>
+            </div>
+
+            <!-- Total Pendapatan -->
+            <div class="bg-white border-l-4 border-green-500 rounded-xl p-6 shadow-sm">
+                <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-500 font-medium">Total Pendapatan</p>
+                    <p class="text-2xl font-bold text-gray-800 mt-1"><?= format_rupiah($total_pendapatan) ?></p>
+                </div>
+                <div class="bg-green-100 p-3 rounded-lg">
+                    <i class="fas fa-money-bill-wave text-green-600 text-xl"></i>
+                </div>
+                </div>
+            </div>
+
+            <!-- Transaksi Hari Ini -->
+            <div class="bg-white border-l-4 border-amber-500 rounded-xl p-6 shadow-sm">
+                <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-500 font-medium">Transaksi Hari Ini</p>
+                    <p class="text-2xl font-bold text-gray-800 mt-1"><?= $transaksi_hari_ini ?></p>
+                </div>
+                <div class="bg-amber-100 p-3 rounded-lg">
+                    <i class="fas fa-calendar-day text-amber-600 text-xl"></i>
+                </div>
+                </div>
+            </div>
+
+            <!-- Rata-rata Transaksi -->
+            <div class="bg-white border-l-4 border-blue-500 rounded-xl p-6 shadow-sm">
+                <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-500 font-medium">Rata-rata Transaksi</p>
+                    <p class="text-2xl font-bold text-gray-800 mt-1"><?= format_rupiah($rata_rata_transaksi) ?></p>
+                </div>
+                <div class="bg-blue-100 p-3 rounded-lg">
+                    <i class="fas fa-chart-line text-blue-600 text-xl"></i>
+                </div>
+                </div>
+            </div>
             </div>
 
             <!-- Filter Section -->

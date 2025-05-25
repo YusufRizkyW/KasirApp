@@ -264,62 +264,67 @@ if ($periode == 'mingguan') {
         </div>
 
         <!-- Summary Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div class="card p-6 flex items-center space-x-4">
-            <div class="card-icon bg-indigo-100 text-indigo-600">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <!-- Total Barang -->
+          <div class="bg-white shadow rounded-xl p-6 flex items-center space-x-4">
+            <div class="p-4 bg-indigo-100 text-indigo-600 rounded-full">
               <i class="fas fa-boxes-stacked text-2xl"></i>
             </div>
             <div>
-              <p class="text-sm text-gray-500 mb-1">Total Barang</p>
+              <p class="text-sm text-gray-500">Total Barang</p>
               <h2 class="text-2xl font-bold text-gray-800"><?= $totalBarang ?></h2>
             </div>
           </div>
-          <div class="card p-6 flex items-center space-x-4">
-            <div class="card-icon bg-green-100 text-green-600">
+
+          <!-- Total Stok -->
+          <div class="bg-white shadow rounded-xl p-6 flex items-center space-x-4">
+            <div class="p-4 bg-green-100 text-green-600 rounded-full">
               <i class="fas fa-warehouse text-2xl"></i>
             </div>
             <div>
-              <p class="text-sm text-gray-500 mb-1">Total Stok</p>
+              <p class="text-sm text-gray-500">Total Stok</p>
               <h2 class="text-2xl font-bold text-gray-800"><?= $totalStok ?></h2>
             </div>
           </div>
-          <div class="card p-6 flex items-center space-x-4">
-            <div class="card-icon bg-purple-100 text-purple-600">
+
+          <!-- Total Pendapatan -->
+          <div class="bg-white shadow rounded-xl p-6 flex items-center space-x-4">
+            <div class="p-4 bg-purple-100 text-purple-600 rounded-full">
               <i class="fas fa-money-bill-wave text-2xl"></i>
             </div>
             <div>
-              <p class="text-sm text-gray-500 mb-1">Total Pendapatan</p>
+              <p class="text-sm text-gray-500">Total Pendapatan</p>
               <h2 class="text-2xl font-bold text-gray-800">Rp <?= number_format($totalPendapatan, 0, ',', '.') ?></h2>
             </div>
           </div>
         </div>
 
-        <!-- Chart and Recent Transactions -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          <!-- Chart -->
-          <div class="card p-6 lg:col-span-2 flex flex-col h-full">
+        <!-- Chart and Sidebar in One Row -->
+        <div class="flex flex-col lg:flex-row gap-6 mb-6">
+          <!-- Chart Section -->
+          <div class="bg-white shadow rounded-xl p-6 w-full lg:w-2/3 flex flex-col">
             <div class="flex justify-between items-center mb-4">
               <h3 class="text-lg font-semibold text-gray-800">Aktivitas Penjualan <?= ucfirst($periode) ?></h3>
-              <select id="periode" onchange="updateChart()" class="dropdown">
+              <select id="periode" onchange="updateChart()" class="border border-gray-300 rounded px-2 py-1 text-sm">
                 <option value="mingguan" <?= $periode == 'mingguan' ? 'selected' : '' ?>>Mingguan</option>
                 <option value="bulanan" <?= $periode == 'bulanan' ? 'selected' : '' ?>>Bulanan</option>
               </select>
             </div>
-            <div class="chart-container flex-1">
+            <div class="relative" style="height: 320px;">
               <canvas id="salesChart"></canvas>
             </div>
           </div>
 
-          <!-- Right Column -->
-          <div class="flex flex-col gap-6">
+          <!-- Sidebar (Transaksi & Penjualan Terlaris) -->
+          <div class="flex flex-col gap-6 w-full lg:w-1/3">
             <!-- Transaksi Terakhir -->
-            <div class="card p-6 flex-1">
+            <div class="bg-white shadow rounded-xl p-6 flex-1">
               <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                 <i class="fas fa-history text-indigo-600 mr-2"></i> Transaksi Terakhir
               </h3>
-              <div class="space-y-3">
+              <div class="space-y-3 max-h-72 overflow-auto pr-1 text-sm">
                 <?php foreach ($transaksiTerakhir as $trx): ?>
-                  <div class="list-item flex justify-between items-center">
+                  <div class="flex justify-between items-center">
                     <div>
                       <span class="font-medium text-gray-800">#<?= $trx['ID_TRANSAKSI'] ?></span>
                       <div class="text-xs text-gray-500"><?= date("d M Y", strtotime($trx['TANGGAL'])) ?></div>
@@ -327,7 +332,6 @@ if ($periode == 'mingguan') {
                     <span class="font-medium text-indigo-600">Rp <?= number_format($trx['TOTAL'], 0, ',', '.') ?></span>
                   </div>
                 <?php endforeach; ?>
-                
                 <?php if (count($transaksiTerakhir) === 0): ?>
                   <div class="text-center text-gray-500">Belum ada transaksi</div>
                 <?php endif; ?>
@@ -335,18 +339,17 @@ if ($periode == 'mingguan') {
             </div>
 
             <!-- Penjualan Terlaris -->
-            <div class="card p-6 flex-1">
+            <div class="bg-white shadow rounded-xl p-6 flex-1">
               <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                 <i class="fas fa-fire text-orange-500 mr-2"></i> Penjualan Terlaris
               </h3>
-              <div class="space-y-3">
+              <div class="space-y-3 max-h-72 overflow-auto pr-1 text-sm">
                 <?php foreach ($barangTerlaris as $item): ?>
-                  <div class="list-item flex justify-between items-center">
+                  <div class="flex justify-between items-center">
                     <span class="truncate text-gray-800"><?= htmlspecialchars($item['NAMA_BARANG']) ?></span>
                     <span class="font-medium text-orange-500"><?= $item['TOTAL_JUMLAH'] ?>x</span>
                   </div>
                 <?php endforeach; ?>
-                
                 <?php if (count($barangTerlaris) === 0): ?>
                   <div class="text-center text-gray-500">Belum ada data penjualan</div>
                 <?php endif; ?>
@@ -354,7 +357,7 @@ if ($periode == 'mingguan') {
             </div>
           </div>
         </div>
-        
+
         <!-- Footer -->
         <footer class="mt-auto pt-6 pb-2">
           <p class="text-center text-sm text-gray-500">© 2024 KasirApp. All rights reserved.</p>
