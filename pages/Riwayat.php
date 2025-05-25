@@ -1,6 +1,7 @@
 <?php
 include '../config/koneksi.php';
 
+
 // Set locale and timezone
 setlocale(LC_TIME, 'id_ID');
 date_default_timezone_set('Asia/Jakarta');
@@ -13,6 +14,7 @@ $query_transaksi = oci_parse($conn, "SELECT ID_TRANSAKSI,
        KASIR 
 FROM TBL_TRANSAKSI 
 ORDER BY TANGGAL DESC");
+
 oci_execute($query_transaksi);
 
 // Ambil detail transaksi per transaksi
@@ -195,6 +197,7 @@ function format_rupiah($angka) {
 
             <!-- Stats Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
                 <!-- Total Transaksi -->
                 <div class="bg-white rounded-xl p-6 shadow-sm border-l-4 border-purple-500 stat-card">
                     <div class="flex items-center justify-between">
@@ -247,6 +250,7 @@ function format_rupiah($angka) {
                     </div>
                 </div>
             </div>
+
 
             <!-- Filter Section -->
             <div class="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl p-6 mb-8 shadow-md">
@@ -329,6 +333,7 @@ function format_rupiah($angka) {
                                         </td> -->
                                         <td class="px-4 py-3">
                                             <div class="text-xs md:text-sm">
+
                                                 <?php 
                                                     $timestamp = strtotime($transaksi['TANGGAL']);
                                                     setlocale(LC_TIME, 'id_ID');
@@ -339,6 +344,7 @@ function format_rupiah($angka) {
                                                 <div class="text-gray-500">
                                                     <?= date("H:i:s", $timestamp) ?>
                                                 </div>
+
                                             </div>
                                         </td>
                                         <td class="px-4 py-3">
@@ -366,17 +372,21 @@ function format_rupiah($angka) {
                                             <span class="text-sm font-bold text-purple-600"><?= format_rupiah($kembalian) ?></span>
                                         </td>
                                         <td class="px-4 py-3">
+
                                             <div class="flex items-center justify-center space-x-1">
+
                                                 <button onclick="toggleDetail('<?= $transaksi['ID_TRANSAKSI'] ?>')" 
                                                         class="bg-purple-100 hover:bg-purple-200 text-purple-700 hover:text-purple-800 px-2 py-1 rounded text-xs transition-colors flex items-center">
                                                     <i class="fas fa-eye mr-1"></i> Detail
                                                 </button>
+
                                                 
                                                 <button onclick="printStruk('<?= $transaksi['ID_TRANSAKSI'] ?>')" 
                                                         class="bg-green-100 hover:bg-green-200 text-green-700 hover:text-green-800 px-2 py-1 rounded text-xs transition-colors flex items-center">
                                                     <i class="fas fa-print mr-1"></i> Struk
                                                 </button>
                                                 
+
                                                 <button onclick="confirmDelete('<?= $transaksi['ID_TRANSAKSI'] ?>')" 
                                                         class="bg-red-100 hover:bg-red-200 text-red-700 hover:text-red-800 px-2 py-1 rounded text-xs transition-colors flex items-center">
                                                     <i class="fas fa-trash mr-1"></i> Hapus
@@ -558,6 +568,7 @@ function format_rupiah($angka) {
             });
         }
 
+
         // Function to print receipt
         function printStruk(id_transaksi) {
             const strukWindow = window.open(`struk.php?id=${id_transaksi}`, 'strukWindow', 'width=400,height=600,scrollbars=yes,resizable=yes');
@@ -578,6 +589,7 @@ function format_rupiah($angka) {
                 });
             }
         }
+
 
         // Advanced search with multiple criteria
         function advancedSearch() {

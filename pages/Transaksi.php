@@ -116,6 +116,7 @@ oci_free_statement($stmt);
             border-radius: 1rem;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
+
         
         /* Success notification with struk option */
         .success-with-struk {
@@ -133,6 +134,7 @@ oci_free_statement($stmt);
         
         .success-with-struk.show {
             transform: translateX(0);
+
         }
         
         /* Mobile responsiveness */
@@ -147,6 +149,7 @@ oci_free_statement($stmt);
             .content-wrapper {
                 margin-left: 0;
             }
+
             .success-with-struk {
                 top: 10px;
                 right: 10px;
@@ -155,6 +158,7 @@ oci_free_statement($stmt);
             }
             .success-with-struk.show {
                 transform: translateY(0);
+
             }
         }
     </style>
@@ -163,6 +167,7 @@ oci_free_statement($stmt);
 <body class="bg-gray-50">
     <div class="flex min-h-screen"> 
         <!-- Sidebar -->
+
         <aside class="sidebar" id="sidebar">
             <div class="flex items-center space-x-3 p-6 mb-8">
                 <div class="bg-white p-2 rounded-lg">
@@ -185,6 +190,7 @@ oci_free_statement($stmt);
                     <span class="sidebar-icon"><i class="fas fa-history"></i></span> Riwayat
                 </a>
             </nav>
+
         </aside>
 
         <!-- Toggle Button for Mobile -->
@@ -201,6 +207,7 @@ oci_free_statement($stmt);
                         </h1>
                         <p class="text-gray-500 mt-1">Kelola transaksi penjualan dengan mudah</p>
                     </div>
+
                     
                     <div class="flex space-x-2">
                         <button type="button" id="resetButton" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition duration-200">
@@ -259,6 +266,7 @@ oci_free_statement($stmt);
 
             <!-- Regular Success Alert -->
             <?php if (isset($_SESSION['success_msg']) && !isset($_SESSION['last_transaction_id'])): ?>
+
             <div id="success-alert" class="mb-6 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-xl flex items-center fade-out shadow-md">
                 <div class="bg-green-200 p-2 rounded-full mr-3">
                     <i class="fas fa-check text-green-600"></i>
@@ -271,6 +279,8 @@ oci_free_statement($stmt);
                     <i class="fas fa-times"></i>
                 </button>
             </div>
+
+
             <?php endif; ?>
 
             <?php if (empty($barang)): ?>
@@ -370,6 +380,7 @@ oci_free_statement($stmt);
                                 </button>
                             </div>
                         </form>
+
                         
                         <!-- Quick Add Popular Items -->
                         <div class="mt-8 pt-6 border-t border-gray-200">
@@ -387,6 +398,7 @@ oci_free_statement($stmt);
                                 <?php endforeach; ?>
                             </div>
                         </div>
+
                     </div>
                     
                     <!-- Tombol Pembayaran untuk Mobile -->
@@ -536,6 +548,7 @@ oci_free_statement($stmt);
             </footer>
         </main>
     </div>
+
 
     <!-- JavaScript for functionality -->
     <script>
@@ -1207,5 +1220,6 @@ oci_free_statement($stmt);
         unset($_SESSION['last_transaction_id']); 
     }
     ?>
+
 </body>
 </html>

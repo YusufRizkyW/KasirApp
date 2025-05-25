@@ -264,6 +264,7 @@ if ($periode == 'mingguan') {
         </div>
 
         <!-- Summary Cards -->
+
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div class="card p-6 flex items-center space-x-4">
             <div class="card-icon bg-indigo-100 text-indigo-600">
@@ -289,10 +290,12 @@ if ($periode == 'mingguan') {
             </div>
             <div>
               <p class="text-sm text-gray-500 mb-1">Total Pendapatan</p>
+
               <h2 class="text-2xl font-bold text-gray-800">Rp <?= number_format($totalPendapatan, 0, ',', '.') ?></h2>
             </div>
           </div>
         </div>
+
 
         <!-- Chart and Recent Transactions -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
@@ -301,14 +304,18 @@ if ($periode == 'mingguan') {
             <div class="flex justify-between items-center mb-4">
               <h3 class="text-lg font-semibold text-gray-800">Aktivitas Penjualan <?= ucfirst($periode) ?></h3>
               <select id="periode" onchange="updateChart()" class="dropdown">
+
                 <option value="mingguan" <?= $periode == 'mingguan' ? 'selected' : '' ?>>Mingguan</option>
                 <option value="bulanan" <?= $periode == 'bulanan' ? 'selected' : '' ?>>Bulanan</option>
               </select>
             </div>
+
             <div class="chart-container flex-1">
+
               <canvas id="salesChart"></canvas>
             </div>
           </div>
+
 
           <!-- Right Column -->
           <div class="flex flex-col gap-6">
@@ -320,6 +327,7 @@ if ($periode == 'mingguan') {
               <div class="space-y-3">
                 <?php foreach ($transaksiTerakhir as $trx): ?>
                   <div class="list-item flex justify-between items-center">
+
                     <div>
                       <span class="font-medium text-gray-800">#<?= $trx['ID_TRANSAKSI'] ?></span>
                       <div class="text-xs text-gray-500"><?= date("d M Y", strtotime($trx['TANGGAL'])) ?></div>
@@ -327,7 +335,9 @@ if ($periode == 'mingguan') {
                     <span class="font-medium text-indigo-600">Rp <?= number_format($trx['TOTAL'], 0, ',', '.') ?></span>
                   </div>
                 <?php endforeach; ?>
+
                 
+
                 <?php if (count($transaksiTerakhir) === 0): ?>
                   <div class="text-center text-gray-500">Belum ada transaksi</div>
                 <?php endif; ?>
@@ -335,6 +345,7 @@ if ($periode == 'mingguan') {
             </div>
 
             <!-- Penjualan Terlaris -->
+
             <div class="card p-6 flex-1">
               <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                 <i class="fas fa-fire text-orange-500 mr-2"></i> Penjualan Terlaris
@@ -342,11 +353,14 @@ if ($periode == 'mingguan') {
               <div class="space-y-3">
                 <?php foreach ($barangTerlaris as $item): ?>
                   <div class="list-item flex justify-between items-center">
+
                     <span class="truncate text-gray-800"><?= htmlspecialchars($item['NAMA_BARANG']) ?></span>
                     <span class="font-medium text-orange-500"><?= $item['TOTAL_JUMLAH'] ?>x</span>
                   </div>
                 <?php endforeach; ?>
+
                 
+
                 <?php if (count($barangTerlaris) === 0): ?>
                   <div class="text-center text-gray-500">Belum ada data penjualan</div>
                 <?php endif; ?>
@@ -354,7 +368,9 @@ if ($periode == 'mingguan') {
             </div>
           </div>
         </div>
+
         
+
         <!-- Footer -->
         <footer class="mt-auto pt-6 pb-2">
           <p class="text-center text-sm text-gray-500">© 2024 KasirApp. All rights reserved.</p>
