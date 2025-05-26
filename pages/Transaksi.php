@@ -167,30 +167,28 @@ oci_free_statement($stmt);
 <body class="bg-gray-50">
     <div class="flex min-h-screen"> 
         <!-- Sidebar -->
-
-        <aside class="sidebar" id="sidebar">
-            <div class="flex items-center space-x-3 p-6 mb-8">
-                <div class="bg-white p-2 rounded-lg">
-                    <i class="fas fa-cash-register text-purple-600 text-xl"></i>
-                </div>
-                <h2 class="text-2xl font-bold">KasirApp</h2>
+        <aside class="sidebar text-white p-6">
+        <div class="flex items-center space-x-3 mb-10">
+            <div class="bg-white p-2 rounded-lg">
+            <i class="fas fa-cash-register text-purple-600 text-xl"></i>
             </div>
-
-            <nav class="space-y-2 px-4">
-                <a href="KasirDashboard.php" class="flex items-center p-3 rounded-xl hover:bg-white/10 text-white/90 hover:text-white font-medium transition-all duration-200">
-                    <span class="sidebar-icon"><i class="fas fa-tachometer-alt"></i></span> Dashboard
-                </a>
-                <a href="DataBarang.php" class="flex items-center p-3 rounded-xl hover:bg-white/10 text-white/90 hover:text-white font-medium transition-all duration-200">
-                    <span class="sidebar-icon"><i class="fas fa-boxes-stacked"></i></span> Data Barang
-                </a>
-                <a href="Transaksi.php" class="flex items-center p-3 rounded-xl bg-white/20 text-white font-medium">
-                    <span class="sidebar-icon"><i class="fas fa-cash-register"></i></span> Transaksi
-                </a>
-                <a href="Riwayat.php" class="flex items-center p-3 rounded-xl hover:bg-white/10 text-white/90 hover:text-white font-medium transition-all duration-200">
-                    <span class="sidebar-icon"><i class="fas fa-history"></i></span> Riwayat
-                </a>
-            </nav>
-
+            <h2 class="text-2xl font-bold text-white">KasirApp</h2>
+        </div>
+        
+        <nav class="space-y-2">
+            <a href="KasirDashboard.php" class="flex items-center p-3 rounded-xl hover:bg-white/10 text-white/90 hover:text-white font-medium transition-all duration-200">
+            <span class="sidebar-icon"><i class="fas fa-tachometer-alt"></i></span> Dashboard
+            </a>
+            <a href="DataBarang.php" class="flex items-center p-3 rounded-xl hover:bg-white/10 text-white/90 hover:text-white font-medium transition-all duration-200">
+            <span class="sidebar-icon"><i class="fas fa-boxes-stacked"></i></span> Data Barang
+            </a>
+            <a href="Transaksi.php" class="flex items-center p-3 rounded-xl bg-white/20 text-white font-medium">
+            <span class="sidebar-icon"><i class="fas fa-cash-register"></i></span> Transaksi
+            </a>
+            <a href="Riwayat.php" class="flex items-center p-3 rounded-xl hover:bg-white/10 text-white/90 hover:text-white font-medium transition-all duration-200">
+            <span class="sidebar-icon"><i class="fas fa-history"></i></span> Riwayat
+            </a>
+        </nav>
         </aside>
 
         <!-- Toggle Button for Mobile -->
