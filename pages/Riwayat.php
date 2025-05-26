@@ -1,8 +1,20 @@
 <?php
 include '../config/koneksi.php';
 
+
+// Set locale and timezone
+setlocale(LC_TIME, 'id_ID');
+date_default_timezone_set('Asia/Jakarta');
+
 // Ambil riwayat transaksi
-$query_transaksi = oci_parse($conn, "SELECT ID_TRANSAKSI, TANGGAL, TOTAL, TOTAL_BAYAR, KASIR FROM TBL_TRANSAKSI ORDER BY TANGGAL DESC");
+$query_transaksi = oci_parse($conn, "SELECT ID_TRANSAKSI, 
+       TO_CHAR(TANGGAL, 'DD-MM-YYYY HH24:MI:SS') as TANGGAL, 
+       TOTAL, 
+       TOTAL_BAYAR, 
+       KASIR 
+FROM TBL_TRANSAKSI 
+ORDER BY TANGGAL DESC");
+
 oci_execute($query_transaksi);
 
 // Ambil detail transaksi per transaksi
@@ -48,6 +60,18 @@ oci_close($conn);
 // Fungsi format rupiah
 function format_rupiah($angka) {
     return 'Rp ' . number_format($angka, 0, ',', '.');
+}
+
+// Fungsi untuk format tanggal Indonesia
+function tanggal_indo($timestamp) {
+    $bulan = [
+        1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+    $tgl = date('j', $timestamp);
+    $bln = $bulan[(int)date('n', $timestamp)];
+    $thn = date('Y', $timestamp);
+    return "$tgl $bln $thn";
 }
 ?>
 
@@ -185,58 +209,60 @@ function format_rupiah($angka) {
 
             <!-- Stats Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <!-- Total Transaksi -->
-            <div class="bg-white border-l-4 border-purple-500 rounded-xl p-6 shadow-sm">
-                <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-500 font-medium">Total Transaksi</p>
-                    <p class="text-2xl font-bold text-gray-800 mt-1"><?= $total_transaksi ?></p>
+
+                <!-- Total Transaksi -->
+                <div class="bg-white rounded-xl p-6 shadow-sm border-l-4 border-purple-500 stat-card">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">Total Transaksi</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1"><?= $total_transaksi ?></p>
+                        </div>
+                        <div class="bg-purple-100 p-3 rounded-lg">
+                            <i class="fas fa-receipt text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
                 </div>
-                <div class="bg-purple-100 p-3 rounded-lg">
-                    <i class="fas fa-receipt text-purple-600 text-xl"></i>
+                
+                <!-- Total Pendapatan -->
+                <div class="bg-white rounded-xl p-6 shadow-sm border-l-4 border-green-500 stat-card">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">Total Pendapatan</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1"><?= format_rupiah($total_pendapatan) ?></p>
+                        </div>
+                        <div class="bg-green-100 p-3 rounded-lg">
+                            <i class="fas fa-money-bill-wave text-green-600 text-xl"></i>
+                        </div>
+                    </div>
                 </div>
+                
+                <!-- Rata-rata Transaksi -->
+                <!-- <div class="bg-white rounded-xl p-6 shadow-sm border-l-4 border-blue-500 stat-card">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">Rata-rata Transaksi</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1"><?= format_rupiah($rata_rata_transaksi) ?></p>
+                        </div>
+                        <div class="bg-blue-100 p-3 rounded-lg">
+                            <i class="fas fa-chart-line text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div> -->
+                
+                <!-- Transaksi Hari Ini -->
+                <div class="bg-white rounded-xl p-6 shadow-sm border-l-4 border-amber-500 stat-card">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">Transaksi Hari Ini</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1"><?= $transaksi_hari_ini ?></p>
+                        </div>
+                        <div class="bg-amber-100 p-3 rounded-lg">
+                            <i class="fas fa-calendar-day text-amber-600 text-xl"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Total Pendapatan -->
-            <div class="bg-white border-l-4 border-green-500 rounded-xl p-6 shadow-sm">
-                <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-500 font-medium">Total Pendapatan</p>
-                    <p class="text-2xl font-bold text-gray-800 mt-1"><?= format_rupiah($total_pendapatan) ?></p>
-                </div>
-                <div class="bg-green-100 p-3 rounded-lg">
-                    <i class="fas fa-money-bill-wave text-green-600 text-xl"></i>
-                </div>
-                </div>
-            </div>
-
-            <!-- Transaksi Hari Ini -->
-            <div class="bg-white border-l-4 border-amber-500 rounded-xl p-6 shadow-sm">
-                <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-500 font-medium">Transaksi Hari Ini</p>
-                    <p class="text-2xl font-bold text-gray-800 mt-1"><?= $transaksi_hari_ini ?></p>
-                </div>
-                <div class="bg-amber-100 p-3 rounded-lg">
-                    <i class="fas fa-calendar-day text-amber-600 text-xl"></i>
-                </div>
-                </div>
-            </div>
-
-            <!-- Rata-rata Transaksi -->
-            <div class="bg-white border-l-4 border-blue-500 rounded-xl p-6 shadow-sm">
-                <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-500 font-medium">Rata-rata Transaksi</p>
-                    <p class="text-2xl font-bold text-gray-800 mt-1"><?= format_rupiah($rata_rata_transaksi) ?></p>
-                </div>
-                <div class="bg-blue-100 p-3 rounded-lg">
-                    <i class="fas fa-chart-line text-blue-600 text-xl"></i>
-                </div>
-                </div>
-            </div>
-            </div>
 
             <!-- Filter Section -->
             <div class="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl p-6 mb-8 shadow-md">
@@ -319,8 +345,18 @@ function format_rupiah($angka) {
                                         </td> -->
                                         <td class="px-4 py-3">
                                             <div class="text-xs md:text-sm">
-                                                <div class="font-medium text-gray-900"><?= date("d/m/Y", strtotime($transaksi['TANGGAL'])) ?></div>
-                                                <div class="text-gray-500"><?= date("H:i:s", strtotime($transaksi['TANGGAL'])) ?></div>
+
+                                                <?php 
+                                                    $timestamp = strtotime($transaksi['TANGGAL']);
+                                                    setlocale(LC_TIME, 'id_ID');
+                                                ?>
+                                                <div class="font-medium text-gray-900">
+                                                    <?= tanggal_indo($timestamp) ?>
+                                                </div>
+                                                <div class="text-gray-500">
+                                                    <?= date("H:i:s", $timestamp) ?>
+                                                </div>
+
                                             </div>
                                         </td>
                                         <td class="px-4 py-3">
@@ -348,11 +384,21 @@ function format_rupiah($angka) {
                                             <span class="text-sm font-bold text-purple-600"><?= format_rupiah($kembalian) ?></span>
                                         </td>
                                         <td class="px-4 py-3">
-                                            <div class="flex items-center justify-center space-x-2">
+
+                                            <div class="flex items-center justify-center space-x-1">
+
                                                 <button onclick="toggleDetail('<?= $transaksi['ID_TRANSAKSI'] ?>')" 
                                                         class="bg-purple-100 hover:bg-purple-200 text-purple-700 hover:text-purple-800 px-2 py-1 rounded text-xs transition-colors flex items-center">
                                                     <i class="fas fa-eye mr-1"></i> Detail
                                                 </button>
+
+                                                
+                                                <button onclick="printStruk('<?= $transaksi['ID_TRANSAKSI'] ?>')" 
+                                                        class="bg-green-100 hover:bg-green-200 text-green-700 hover:text-green-800 px-2 py-1 rounded text-xs transition-colors flex items-center">
+                                                    <i class="fas fa-print mr-1"></i> Struk
+                                                </button>
+                                                
+
                                                 <button onclick="confirmDelete('<?= $transaksi['ID_TRANSAKSI'] ?>')" 
                                                         class="bg-red-100 hover:bg-red-200 text-red-700 hover:text-red-800 px-2 py-1 rounded text-xs transition-colors flex items-center">
                                                     <i class="fas fa-trash mr-1"></i> Hapus
@@ -533,6 +579,29 @@ function format_rupiah($angka) {
                 }
             });
         }
+
+
+        // Function to print receipt
+        function printStruk(id_transaksi) {
+            const strukWindow = window.open(`struk.php?id=${id_transaksi}`, 'strukWindow', 'width=400,height=600,scrollbars=yes,resizable=yes');
+            
+            if (strukWindow) {
+                strukWindow.focus();
+                // Auto print setelah window terbuka
+                strukWindow.onload = function() {
+                    setTimeout(function() {
+                        strukWindow.print();
+                    }, 500);
+                };
+            } else {
+                Swal.fire({
+                    title: 'Popup Diblokir',
+                    text: 'Mohon izinkan popup untuk mencetak struk',
+                    icon: 'warning'
+                });
+            }
+        }
+
 
         // Advanced search with multiple criteria
         function advancedSearch() {
