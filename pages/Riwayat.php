@@ -61,6 +61,18 @@ oci_close($conn);
 function format_rupiah($angka) {
     return 'Rp ' . number_format($angka, 0, ',', '.');
 }
+
+// Fungsi untuk format tanggal Indonesia
+function tanggal_indo($timestamp) {
+    $bulan = [
+        1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+    $tgl = date('j', $timestamp);
+    $bln = $bulan[(int)date('n', $timestamp)];
+    $thn = date('Y', $timestamp);
+    return "$tgl $bln $thn";
+}
 ?>
 
 <!DOCTYPE html>
@@ -339,7 +351,7 @@ function format_rupiah($angka) {
                                                     setlocale(LC_TIME, 'id_ID');
                                                 ?>
                                                 <div class="font-medium text-gray-900">
-                                                    <?= strftime("%d %B %Y", $timestamp) ?>
+                                                    <?= tanggal_indo($timestamp) ?>
                                                 </div>
                                                 <div class="text-gray-500">
                                                     <?= date("H:i:s", $timestamp) ?>
