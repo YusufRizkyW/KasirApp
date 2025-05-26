@@ -359,8 +359,8 @@ if ($periode == 'mingguan') {
         </div>
 
         <!-- Footer -->
-        <footer class="mt-auto pt-6 pb-2">
-          <p class="text-center text-sm text-gray-500">© 2024 KasirApp. All rights reserved.</p>
+        <footer class="text-center py-6 text-gray-500 text-sm">
+          <p>&copy; <?php echo date('Y'); ?> KasirApp - Sistem Informasi Kasir</p>
         </footer>
       </div>
     </main>
